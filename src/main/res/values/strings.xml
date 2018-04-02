@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Mes rendez-vous</string>
+    <string name="action_settings">Paramètres</string>
+    <string name="action_Infos_RDV">Infos...</string>
+    <string name="Action2">Action2</string>
+    <string name="Refresh">Rafraîchir</string>
+    <string name="title_activity_appt_infos">ApptInfos</string>
+    <string name="Arrive">Arrivé</string>
+    <string name="Vu">Vu</string>
+    <string name="Parti">Parti</string>
+    <string name="dialog_title_NetworkNotConnected">Erreur</string>
+    <string name="dialog_message_NetworkNotConnected">Réseau non connecté</string>
+    <string name="Enregistrer">Enregistrer</string>
+</resources>

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:id="@+id/LLApptInfos"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="vertical">
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                      android:clickable="false"
+                      android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/nom"
+                android:layout_width="wrap_content"
+                android:layout_height="43dp"
+                android:clickable="false"
+                android:paddingRight="5dp"
+                android:textSize="30sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/prenom"
+                android:layout_width="wrap_content"
+                android:layout_height="43dp"
+                android:clickable="false"
+                android:paddingRight="5dp"
+                android:textSize="30sp"/>
+
+            <TextView
+                android:id="@+id/nomJF"
+                android:layout_width="wrap_content"
+                android:layout_height="43dp"
+                android:clickable="false"
+                android:paddingRight="5dp"
+                android:textSize="30sp"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/age"
+                android:layout_width="wrap_content"
+                android:layout_height="43dp"
+                android:clickable="false"
+                android:paddingRight="5dp"
+                android:textSize="30sp"/>
+        </LinearLayout>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                      android:clickable="false"
+                      android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/ApptDTTM"
+                android:layout_width="wrap_content"
+                android:layout_height="43dp"
+                android:clickable="false"
+                android:paddingRight="5dp"
+                android:textSize="30sp"/>
+
+            <TextView
+                android:id="@+id/ApptStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="43dp"
+                android:clickable="false"
+                android:paddingRight="5dp"
+                android:textSize="30sp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="vertical">
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/checkbox_Arrive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/Arrive"
+                android:textSize="30sp"/>
+
+            <CheckBox
+                android:id="@+id/checkbox_Vu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/Vu"
+                android:textSize="30sp"/>
+
+            <CheckBox
+                android:id="@+id/checkbox_Parti"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/Parti"
+                android:textSize="30sp"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_RecordVoice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/Enregistrer"/>
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:id="@+id/LLApptInfosNext"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_alignParentBottom="true"
+                  android:orientation="vertical">
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                      android:clickable="false"
+                      android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/nomNext"
+                android:layout_width="wrap_content"
+                android:layout_height="43dp"
+                android:clickable="false"
+                android:paddingRight="5dp"
+                android:textSize="30sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/prenomNext"
+                android:layout_width="wrap_content"
+                android:layout_height="43dp"
+                android:clickable="false"
+                android:paddingRight="5dp"
+                android:textSize="30sp"/>
+
+            <TextView
+                android:id="@+id/nomJFNext"
+                android:layout_width="wrap_content"
+                android:layout_height="43dp"
+                android:clickable="false"
+                android:paddingRight="5dp"
+                android:textSize="30sp"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/ageNext"
+                android:layout_width="wrap_content"
+                android:layout_height="43dp"
+                android:clickable="false"
+                android:paddingRight="5dp"
+                android:textSize="30sp"/>
+        </LinearLayout>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                      android:clickable="false"
+                      android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/ApptDTTMNext"
+                android:layout_width="wrap_content"
+                android:layout_height="43dp"
+                android:clickable="false"
+                android:paddingRight="5dp"
+                android:textSize="30sp"/>
+
+            <TextView
+                android:id="@+id/ApptStatusNext"
+                android:layout_width="wrap_content"
+                android:layout_height="43dp"
+                android:clickable="false"
+                android:paddingRight="5dp"
+                android:textSize="30sp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

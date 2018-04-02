@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.lbo.tstMontre04.MainActivity"
+    tools:showIn="@layout/activity_main">
+
+    <RelativeLayout
+        android:id="@+id/root"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
+
+        <android.support.v4.widget.SwipeRefreshLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/swiperefresh"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/buttons">
+
+            <ExpandableListView
+                android:id="@+id/listPatients"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/buttons"
+                android:divider="#000000"
+                android:dividerHeight="1dp"
+                tools:ignore="MissingConstraints"
+                tools:layout_editor_absoluteX="8dp"
+                tools:layout_editor_absoluteY="8dp"/>
+        </android.support.v4.widget.SwipeRefreshLayout>
+
+        <LinearLayout
+            android:id="@+id/buttons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_margin="0dp"
+            android:orientation="horizontal"
+            android:padding="0dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:padding="0dp">
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_margin="0dp"
+                    android:layout_marginTop="0dp"
+                    android:orientation="horizontal"
+                    android:padding="0dp">
+
+                    <Button
+                        android:id="@+id/btnDateStartPrevious"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:layout_weight="0"
+                        android:padding="0dp"
+                        android:text="&lt;&lt;"/>
+
+                    <EditText
+                        android:id="@+id/textDateStart"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:layout_weight="1"
+                        android:hint="Date début"
+                        android:textAlignment="center"/>
+
+                    <Button
+                        android:id="@+id/btnDateStartNext"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:layout_weight="0"
+                        android:padding="0dp"
+                        android:text="&gt;&gt;"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/buttonsDateEnd"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="0dp"
+                    android:orientation="horizontal"
+                    android:padding="0dp"
+                    android:visibility="gone">
+
+                    <Button
+                        android:id="@+id/btnDateEndPrevious"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:layout_weight="0"
+                        android:padding="0dp"
+                        android:text="&lt;&lt;"/>
+
+                    <EditText
+                        android:id="@+id/textDateEnd"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:layout_weight="1"
+                        android:hint="Date fin"
+                        android:textAlignment="center"/>
+
+                    <Button
+                        android:id="@+id/btnDateEndNext"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:layout_weight="0"
+                        android:padding="0dp"
+                        android:text="&gt;&gt;"/>
+                    <!--<Space
+                    android:layout_width="30dp"
+                    android:layout_height="wrap_content"/>
+                <Space
+                    android:layout_width="30dp"
+                    android:layout_height="wrap_content"/>-->
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:layout_margin="0dp"
+                android:orientation="horizontal"
+                android:padding="0dp">
+
+                <Button
+                    android:id="@+id/btnShowDateEnd"
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_margin="0dp"
+                    android:layout_weight="0.5"
+                    android:padding="0dp"
+                    android:text="v"/>
+
+                <Button
+                    android:id="@+id/btnSearch"
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_margin="0dp"
+                    android:layout_weight="0.5"
+                    android:padding="0dp"
+                    android:text="S"/>
+            </LinearLayout>
+        </LinearLayout>
+
+
+    </RelativeLayout>
+</android.support.constraint.ConstraintLayout>
