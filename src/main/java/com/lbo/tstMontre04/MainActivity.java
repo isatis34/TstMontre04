@@ -66,7 +66,7 @@ import Region.FRXX.ClinicomLink.cli.Pat.ClassListofPatients;
 import Region.FRXX.ClinicomLink.cli.Pat.ClassPatient;
 
 public class MainActivity extends AppCompatActivity
-{
+{//test
 	public static MainActivity Instance;
 	private Boolean Debug_WS_preference = true;
 	final static String Address = "172.24.76.197";
