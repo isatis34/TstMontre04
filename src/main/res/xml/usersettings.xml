@@ -17,6 +17,32 @@
         </CheckBoxPreference>
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="Recherche" >
+        <EditTextPreference
+            android:defaultValue="DCD1"
+            android:key="prefLocation"
+            android:summary="Localisation"
+            android:title="Localisation" >
+        </EditTextPreference>
+        <EditTextPreference
+            android:defaultValue="Ben B. JACOBS"
+            android:key="prefRessource"
+            android:summary="Ressource"
+            android:title="Ressource" >
+        </EditTextPreference>
+        <EditTextPreference
+            android:defaultValue="J"
+            android:key="prefDateStart"
+            android:summary="Date de début de recherche"
+            android:title="Date de début" >
+        </EditTextPreference>
+        <EditTextPreference
+            android:defaultValue="J+1"
+            android:key="prefDateEnd"
+            android:summary="Date de fin de recherche"
+            android:title="Date de fin" >
+        </EditTextPreference>
+    </PreferenceCategory>
     <PreferenceCategory android:title="Voix" >
         <CheckBoxPreference
             android:defaultValue="false"
@@ -31,6 +57,15 @@
             android:entries="@array/updateFrequency"
             android:entryValues="@array/updateFrequencyValues"
             />-->
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Affichage" >
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="prefChangeDatePickerDialogStyle"
+            android:summary="Ajuster le style du calendrier système"
+            android:title="Ajuster le style du calendrier système" >
+        </CheckBoxPreference>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Divers" >

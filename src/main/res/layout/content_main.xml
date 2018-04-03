@@ -62,7 +62,7 @@
 
                     <Button
                         android:id="@+id/btnDateStartPrevious"
-                        android:layout_width="wrap_content"
+                        android:layout_width="@dimen/button_width"
                         android:layout_height="wrap_content"
                         android:layout_margin="0dp"
                         android:layout_weight="0"
@@ -80,7 +80,7 @@
 
                     <Button
                         android:id="@+id/btnDateStartNext"
-                        android:layout_width="wrap_content"
+                        android:layout_width="@dimen/button_width"
                         android:layout_height="wrap_content"
                         android:layout_margin="0dp"
                         android:layout_weight="0"
@@ -100,7 +100,7 @@
 
                     <Button
                         android:id="@+id/btnDateEndPrevious"
-                        android:layout_width="wrap_content"
+                        android:layout_width="@dimen/button_width"
                         android:layout_height="wrap_content"
                         android:layout_margin="0dp"
                         android:layout_weight="0"
@@ -118,7 +118,7 @@
 
                     <Button
                         android:id="@+id/btnDateEndNext"
-                        android:layout_width="wrap_content"
+                        android:layout_width="@dimen/button_width"
                         android:layout_height="wrap_content"
                         android:layout_margin="0dp"
                         android:layout_weight="0"
@@ -134,7 +134,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="60dp"
+                android:layout_width="120dp"
                 android:layout_height="match_parent"
                 android:layout_margin="0dp"
                 android:orientation="horizontal"
@@ -142,7 +142,7 @@
 
                 <Button
                     android:id="@+id/btnShowDateEnd"
-                    android:layout_width="0dp"
+                    android:layout_width="@dimen/button_width"
                     android:layout_height="fill_parent"
                     android:layout_margin="0dp"
                     android:layout_weight="0.5"
@@ -151,7 +151,7 @@
 
                 <Button
                     android:id="@+id/btnSearch"
-                    android:layout_width="0dp"
+                    android:layout_width="@dimen/button_width"
                     android:layout_height="fill_parent"
                     android:layout_margin="0dp"
                     android:layout_weight="0.5"

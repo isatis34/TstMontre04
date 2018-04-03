@@ -51,9 +51,11 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 import Region.FRXX.ClinicomLink.cli.Pat.ClassListofPatientsAppt;
 import Region.FRXX.ClinicomLink.cli.Pat.ClassPatientAppt;
@@ -171,18 +173,31 @@ public class MainActivity extends AppCompatActivity
 				public void onClick(View v)
 				{
 					final Calendar cldr = Calendar.getInstance();
+					Date date = (Date)textDateStart.getTag();
+					if (date == null)
+						date = cldr.getTime();
+					cldr.setTime(date);
 					int day = cldr.get(Calendar.DAY_OF_MONTH);
 					int month = cldr.get(Calendar.MONTH);
 					int year = cldr.get(Calendar.YEAR);
-					// date picker dialog
-					DatePickerDialog picker = new DatePickerDialog(MainActivity.this,
+
+					DatePickerDialog picker = null;
+					SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.Instance);
+					int themeResId = 0;
+					if (sharedPrefs.getBoolean("prefChangeDatePickerDialogStyle", false))
+					{
+						themeResId = R.style.DatePickerDialogTheme;
+					}
+					picker = new DatePickerDialog(MainActivity.this, themeResId,
 							new DatePickerDialog.OnDateSetListener()
 							{
 								@Override
 								public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth)
 								{
 									SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yy");
+									cldr.set(year, monthOfYear, dayOfMonth);
 									textDateStart.setText(format1.format(cldr.getTime()));
+									textDateStart.setTag(cldr.getTime());
 								}
 							}, year, month, day);
 					picker.show();
@@ -198,24 +213,59 @@ public class MainActivity extends AppCompatActivity
 				public void onClick(View v)
 				{
 					final Calendar cldr = Calendar.getInstance();
+					Date date = (Date)textDateEnd.getTag();
+					if (date == null)
+						date = cldr.getTime();
+					cldr.setTime(date);
 					int day = cldr.get(Calendar.DAY_OF_MONTH);
 					int month = cldr.get(Calendar.MONTH);
 					int year = cldr.get(Calendar.YEAR);
-					// date picker dialog
-					DatePickerDialog picker = new DatePickerDialog(MainActivity.this,
+
+					DatePickerDialog picker = null;
+					SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.Instance);
+					int themeResId = 0;
+					if (sharedPrefs.getBoolean("prefChangeDatePickerDialogStyle", false))
+					{
+						themeResId = R.style.DatePickerDialogTheme;
+					}
+					picker = new DatePickerDialog(MainActivity.this, themeResId,
 							new DatePickerDialog.OnDateSetListener()
 							{
 								@Override
 								public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth)
 								{
 									SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yy");
+									cldr.set(year, monthOfYear, dayOfMonth);
 									textDateEnd.setText(format1.format(cldr.getTime()));
+									textDateEnd.setTag(cldr.getTime());
 								}
 							}, year, month, day);
 					picker.show();
 				}
 			});
 			// endregion
+			Button btnDateStartNext = (Button) findViewById(R.id.btnDateStartNext);
+			btnDateStartNext.setOnClickListener(new View.OnClickListener()
+			{
+				@Override
+				public void onClick(View v)
+				{
+					SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yy");
+					String date = textDateStart.getText().toString();
+					try
+					{
+						Calendar cldr = Calendar.getInstance();
+						cldr.setTime(format1.parse(date));
+						cldr.add(Calendar.DATE, 1);
+						textDateStart.setText(format1.format(cldr.getTime()));
+						textDateStart.setTag(cldr.getTime());
+					}
+					catch (ParseException e)
+					{
+						e.printStackTrace();
+					}
+				}
+			});
 
 			Button btnShowDateEnd = (Button) findViewById(R.id.btnShowDateEnd);
 			btnShowDateEnd.setOnClickListener(new View.OnClickListener()
@@ -419,9 +469,13 @@ public class MainActivity extends AppCompatActivity
 	{
 		PatientApptAdapter.clearAdapter();
 
+		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		String Location = sharedPrefs.getString("prefLocation", "DCD1");
+		String Ressource = sharedPrefs.getString("prefRessource", "Ben B. JACOBS");
+
 		SetBusy(true, "Appel serveur", "Chargement des RDVs");
 		BackgroundLoadPatientsByRessourcesThread BackgroundLoadPatientsByRessourcesThread = new BackgroundLoadPatientsByRessourcesThread();
-		BackgroundLoadPatientsByRessourcesThread.setRunning(true, "DCD1", "Ben B. JACOBS", "01/01/2011", "08/09/2014");
+		BackgroundLoadPatientsByRessourcesThread.setRunning(true, Location, Ressource, "01/01/2011", "08/09/2014");
 		BackgroundLoadPatientsByRessourcesThread.start();
 		return true;
 
@@ -566,162 +620,6 @@ public class MainActivity extends AppCompatActivity
 			//Bundle.putString("ERROR_TEXT", "Reset Arduino lancé");
 			//Message.setData(Bundle);
 			Bundle.putSerializable("PATIENTS", ClassListofPatients);
-			Message.setData(Bundle);
-			handler.sendMessage(Message);
-
-			return true;
-
-		}
-		catch (SoapFault12 e)
-		{
-			Log.d(this.getClass().getPackage().toString(), e.getMessage());
-			Bundle.putString("ERROR_TITLE", "Erreur " + METHOD_NAME);
-			Message.setData(Bundle);
-			Bundle.putString("ERROR_TEXT", e.getMessage());
-			Message.setData(Bundle);
-			handler.sendMessage(Message);
-			return false;
-		}
-		catch (final EOFException e)
-		{
-			Log.d(this.getClass().getPackage().toString(), "EOFException");
-			Bundle.putString("ERROR_TITLE", "Erreur " + METHOD_NAME);
-			Message.setData(Bundle);
-			Bundle.putString("ERROR_TEXT", "EOFException");
-			Message.setData(Bundle);
-			handler.sendMessage(Message);
-			return false;
-		}
-		catch (final Exception e)
-		{
-			Log.d(this.getClass().getPackage().toString(), e.getMessage());
-			Bundle.putString("ERROR_TITLE", "Erreur " + METHOD_NAME);
-			Message.setData(Bundle);
-			Bundle.putString("ERROR_TEXT", e.getMessage());
-			Message.setData(Bundle);
-			handler.sendMessage(Message);
-			return false;
-		}
-	}
-
-	private Boolean GetAllPatientsByResource()
-	{
-		String CLASSNAME = "Region.FRXX.ClinicomLink.WebServices.Wrd.ClassDocumentsServices";
-		final String METHOD_NAME = "SearchByRBResource";
-		final String NAMESPACE = "http://www.issas.fr";
-		final String SOAP_ACTION = String.format("%s/%s.%s", NAMESPACE, CLASSNAME, METHOD_NAME);
-		// "http://172.24.76.207:8973/csp/dsb-dvp-650/com.siemens.med.hs.WebServices.pats.ClassPatientSearchWS.cls";
-		final String URL = String.format("http://%s:%s/csp/%s/%s.cls", Address, Port_Web, NameSpace, CLASSNAME);
-		PropertyInfo pi;
-
-		PatientAdapter.setPatients(null);
-
-		Message Message = handler.obtainMessage();
-		Bundle Bundle = new Bundle();
-		Bundle.putString("ACTION", METHOD_NAME.toUpperCase());
-		Message.setData(Bundle);
-
-		try
-		{
-			SnackbarText = "";
-			SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
-
-			ClassContext ClassContext = new ClassContext();
-			pi = new PropertyInfo();
-			pi.setName("ClsINOUTContext");
-			pi.setValue(ClassContext);
-			pi.setType(ClassContext.class);
-			request.addProperty(pi);
-
-			ClassPatientSearchByRBResource ClassPatientSearchByRBResource = new ClassPatientSearchByRBResource();
-			ClassPatientSearchByRBResource.Location = "DCD1";
-			ClassPatientSearchByRBResource.ResourceCode = "Ben B. JACOBS";
-			ClassPatientSearchByRBResource.StartDate = "01/01/2011";
-			ClassPatientSearchByRBResource.EndDate = "08/09/2014";
-
-			pi = new PropertyInfo();
-			pi.setName("ClsINPatientSearchByRBResource");
-			pi.setValue(ClassPatientSearchByRBResource);
-			pi.setType(ClassPatientSearchByRBResource.getClass());
-			request.addProperty(pi);
-
-			ClassListofPatientsAppt ClassListofPatientsAppt = new ClassListofPatientsAppt();
-			pi = new PropertyInfo();
-			pi.setName("ClsOUTListofPatients");
-			pi.setValue(ClassListofPatientsAppt);
-			pi.setType(ClassListofPatientsAppt.getClass());
-			request.addProperty(pi);
-
-			/*
-			 * Set the web service envelope
-			 */
-			SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER12);
-			envelope.dotNet = false;
-			envelope.avoidExceptionForUnknownProperty = true;
-			envelope.setOutputSoapObject(request);
-			envelope.setAddAdornments(false);
-
-			envelope.addMapping(NAMESPACE, "ClassContext", ClassContext.class);
-			envelope.addMapping(NAMESPACE, "ClassPatientSearchByRBResource", ClassPatientSearchByRBResource.class);
-			envelope.addMapping(NAMESPACE, "ClassListofPatients", ClassListofPatientsAppt.class);
-			envelope.addMapping(NAMESPACE, "ClassPatientAppt", ClassPatientAppt.class);
-
-			HttpTransportSE ht = new HttpTransportSE(URL);
-
-			org.ksoap2.transport.ServiceConnection ServiceConnection = ht.getServiceConnection();
-			ServiceConnection.setRequestProperty("Expect", "100-continue");
-			ServiceConnection.setRequestProperty("KeepAlive", "false");
-			ServiceConnection.setRequestProperty("Connection", "close");
-
-			ArrayList<HeaderProperty> headerPropertyArrayList = new ArrayList<HeaderProperty>();
-			headerPropertyArrayList.add(new HeaderProperty("Connection", "close"));
-
-			ht.debug = Debug_WS_preference;
-			StrictMode.ThreadPolicy tp = StrictMode.ThreadPolicy.LAX;
-			StrictMode.setThreadPolicy(tp);
-			Log.d(this.getClass().getPackage().toString(), "Before call WS (URL: " + URL + ")");
-			ht.call(SOAP_ACTION, envelope, headerPropertyArrayList);
-			Log.d(this.getClass().getPackage().toString(), "After call WS");
-			if (ht.debug)
-			{
-				Log.d(this.getClass().getPackage().toString(), ht.requestDump);
-				Log.d(this.getClass().getPackage().toString(), ht.responseDump);
-			}
-			if (envelope.bodyIn instanceof SoapFault12)
-			{
-				String str = ((SoapFault12) envelope.bodyIn).faultstring;
-				Log.d(this.getClass().getPackage().toString(), str);
-				Bundle.putString("ERROR_TITLE", "Erreur " + METHOD_NAME);
-				Message.setData(Bundle);
-				Bundle.putString("ERROR_TEXT", str);
-				Message.setData(Bundle);
-				handler.sendMessage(Message);
-				return false;
-			}
-			SoapObject response = (SoapObject) envelope.bodyIn;
-
-			Boolean Return = Boolean.parseBoolean(response.getPropertyAsString(METHOD_NAME + "Result"));
-			ClassContext ClassContextResult = new ClassContext(
-					(SoapObject) response.getProperty("ClsINOUTContext"));
-
-			if ((ClassContextResult.Error != null) && (!ClassContextResult.Error.isEmpty()))
-			{
-
-				Bundle.putString("ERROR_TITLE", "Erreur WS");
-				Message.setData(Bundle);
-				Bundle.putString("ERROR_TEXT", ClassContextResult.Error);
-				Message.setData(Bundle);
-				handler.sendMessage(Message);
-
-				return false;
-			}
-			ClassListofPatientsAppt = new ClassListofPatientsAppt(
-					(SoapObject) response.getProperty("ClsOUTListofPatients"));
-			//Bundle.putString("ERROR_TITLE", "Reset Arduino");
-			//Message.setData(Bundle);
-			//Bundle.putString("ERROR_TEXT", "Reset Arduino lancé");
-			//Message.setData(Bundle);
-			Bundle.putSerializable("PATIENTS_APPT", ClassListofPatientsAppt);
 			Message.setData(Bundle);
 			handler.sendMessage(Message);
 
@@ -917,7 +815,6 @@ public class MainActivity extends AppCompatActivity
 	public class BackgroundLoadPatientsByRessourcesThread extends Thread
 	{
 		volatile boolean running = false;
-		volatile int cnt;
 		volatile String CodeRessource;
 		volatile String Location;
 		volatile String StartDate;
@@ -926,7 +823,6 @@ public class MainActivity extends AppCompatActivity
 		void setRunning(boolean b, String location, String codeRessource, String startDate, String endDate)
 		{
 			running = b;
-			cnt = 10;
 			Location = location;
 			CodeRessource = codeRessource;
 			StartDate = startDate;
@@ -965,10 +861,10 @@ public class MainActivity extends AppCompatActivity
 					request.addProperty(pi);
 
 					ClassPatientSearchByRBResource ClassPatientSearchByRBResource = new ClassPatientSearchByRBResource();
-					ClassPatientSearchByRBResource.Location = "DCD1";
-					ClassPatientSearchByRBResource.ResourceCode = "Ben B. JACOBS";
-					ClassPatientSearchByRBResource.StartDate = "01/01/2011";
-					ClassPatientSearchByRBResource.EndDate = "08/09/2014";
+					ClassPatientSearchByRBResource.Location = Location;
+					ClassPatientSearchByRBResource.ResourceCode = CodeRessource;
+					ClassPatientSearchByRBResource.StartDate = StartDate;
+					ClassPatientSearchByRBResource.EndDate = EndDate;
 
 					pi = new PropertyInfo();
 					pi.setName("ClsINPatientSearchByRBResource");
@@ -1104,7 +1000,6 @@ public class MainActivity extends AppCompatActivity
 	public class BackgroundSaveBinaryFileThread extends Thread
 	{
 		volatile boolean running = false;
-		volatile int cnt;
 		volatile String IPP;
 		volatile String DateType;
 		volatile String Filename;
@@ -1114,7 +1009,6 @@ public class MainActivity extends AppCompatActivity
 		void setRunning(boolean b, String _IPP, String dateType, byte[] byteBinaryData, Uri _uri, String filename)
 		{
 			running = b;
-			cnt = 10;
 			IPP = _IPP;
 			DateType = dateType;
 			ByteBinaryData = byteBinaryData;
