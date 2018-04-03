@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.renderscript.Element;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity
 	{
 		try
 		{
-			this.Instance =this;
+			this.Instance = this;
 
 			super.onCreate(savedInstanceState);
 			setContentView(R.layout.activity_main);
@@ -130,6 +131,7 @@ public class MainActivity extends AppCompatActivity
 				return;
 			}
 			SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+			Debug_WS_preference = sharedPrefs.getBoolean("prefDebugWS", false);
 			if (sharedPrefs.getBoolean("prefUseCisco", false))
 			{
 				try
@@ -233,10 +235,12 @@ public class MainActivity extends AppCompatActivity
 			registerForContextMenu(LVPatients);
 			LVPatients.setClickable(true);
 			gridSwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
-			gridSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+			gridSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
+			{
 
 				@Override
-				public void onRefresh() {
+				public void onRefresh()
+				{
 
 					RefreshListPatients();
 				}
@@ -425,6 +429,10 @@ public class MainActivity extends AppCompatActivity
 
 	private void SetBusy(Boolean busy, String title, String text)
 	{
+		SetBusy(this, busy, title, text);
+	}
+	public void SetBusy(Context context, Boolean busy, String title, String text)
+	{
 		setProgressBarIndeterminateVisibility(busy);
 
 		if (busy)
@@ -435,7 +443,7 @@ public class MainActivity extends AppCompatActivity
 				progressDialog.setMessage(text);
 				progressDialog.show();
 			} else
-				progressDialog = ProgressDialog.show(this, title, text);
+				progressDialog = ProgressDialog.show(context, title, text);
 		} else if (progressDialog != null)
 		{
 			gridSwipeRefresh.setRefreshing(false);//
@@ -1150,6 +1158,12 @@ public class MainActivity extends AppCompatActivity
 					request.addProperty(pi);
 
 					pi = new PropertyInfo();
+					pi.setName("strINDataType");
+					pi.setValue(this.DateType);
+					pi.setType(String.class);
+					request.addProperty(pi);
+
+					pi = new PropertyInfo();
 					pi.setName("INFile");
 					pi.setValue(ByteBinaryData);
 					pi.setType(ByteBinaryData.getClass());
@@ -1218,8 +1232,12 @@ public class MainActivity extends AppCompatActivity
 
 						return;
 					}
-					getContentResolver().delete(uri, null, null);
-					(new File(Filename)).delete();
+					SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.Instance);
+					if (sharedPrefs.getBoolean("prefDeleteAfterTransfert", false))
+					{
+						getContentResolver().delete(uri, null, null);
+						(new File(Filename)).delete();
+					}
 				}
 				catch (SoapFault12 e)
 				{

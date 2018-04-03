@@ -27,13 +27,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import Region.FRXX.ClinicomLink.cli.Pat.ClassPatientAppt;
 
 public class ApptInfosActivity extends AppCompatActivity
 {
 	private ClassPatientAppt patient = null;
-	private int[] colors = new int[] { 0xFF007DFF, 0xFFFFD3E3, 0xFF888888 };
+	private int[] colors = new int[]{0xFF007DFF, 0xFFFFD3E3, 0xFF888888};
 	private static final int ACTIVITY_RECORD_SOUND = 0;
 	private File imageToStore = null;
 
@@ -62,7 +66,8 @@ public class ApptInfosActivity extends AppCompatActivity
 		TextView = (TextView) findViewById(R.id.prenom);
 		TextView.setText(patient.LastName);
 		if ((patient.Sex.equalsIgnoreCase("F")) && (patient.MaidenName != null)
-				&& (!patient.MaidenName.isEmpty())) {
+				&& (!patient.MaidenName.isEmpty()))
+		{
 			TextView = (TextView) findViewById(R.id.nomJF);
 			TextView.setText("(" + patient.MaidenName + ")");
 			TextView.setVisibility(View.VISIBLE);
@@ -81,47 +86,56 @@ public class ApptInfosActivity extends AppCompatActivity
 		for (int checkbox : checkboxes)
 		{
 			CheckBox = (CheckBox) findViewById(checkbox);
-			CheckBox.setOnClickListener(new OnClickListener() {
+			CheckBox.setOnClickListener(new OnClickListener()
+			{
 				@Override
 				public void onClick(View v)
 				{
 					onCheckboxClicked(v);
-				} });
+				}
+			});
 		}
 		Button btn_RecordVoice = (Button) findViewById(R.id.btn_RecordVoice);
 		btn_RecordVoice.setOnClickListener(new View.OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
+										   {
+											   @Override
+											   public void onClick(View v)
+											   {
 
-				try
-				{
-					imageToStore = File.createTempFile("TrakCare_" + patient.IPP + "_", ".voice", Environment.getExternalStorageDirectory());
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-				Log.d(MainActivity.Instance.getClass().getPackage().toString(), "imageToStore:"+imageToStore);
-				Intent intent = new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
-				intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageToStore));
-				startActivityForResult(intent, ACTIVITY_RECORD_SOUND);
-			}}
-			);
+												   try
+												   {
+													   imageToStore = File.createTempFile("TrakCare_" + patient.IPP + "_", ".voice", Environment.getExternalStorageDirectory());
+												   }
+												   catch (IOException e)
+												   {
+													   e.printStackTrace();
+												   }
+												   Log.d(MainActivity.Instance.getClass().getPackage().toString(), "imageToStore:" + imageToStore);
+												   Intent intent = new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
+												   intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageToStore));
+												   startActivityForResult(intent, ACTIVITY_RECORD_SOUND);
+											   }
+										   }
+		);
 	}
 
 	/* Called when the second activity's finished */
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		switch(requestCode) {
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		switch (requestCode)
+		{
 			case ACTIVITY_RECORD_SOUND:
-				if (resultCode == RESULT_OK) {
-					Log.d(MainActivity.Instance.getClass().getPackage().toString(), "imageToStore:"+imageToStore);
-					Uri uri  = data.getData();
-					try {
+				if (resultCode == RESULT_OK)
+				{
+					Log.d(MainActivity.Instance.getClass().getPackage().toString(), "imageToStore:" + imageToStore);
+					Uri uri = data.getData();
+					try
+					{
 						String filePath = getAudioFilePathFromUri(uri);
 						SendFile(uri, filePath);
-					} catch (IOException e) {
+					}
+					catch (IOException e)
+					{
 						throw new RuntimeException(e);
 					}
 
@@ -130,7 +144,8 @@ public class ApptInfosActivity extends AppCompatActivity
 		}
 	}
 
-	private String getAudioFilePathFromUri(Uri uri) {
+	private String getAudioFilePathFromUri(Uri uri)
+	{
 		Cursor cursor = getContentResolver()
 				.query(uri, null, null, null, null);
 		cursor.moveToFirst();
@@ -140,48 +155,72 @@ public class ApptInfosActivity extends AppCompatActivity
 
 	private void SendFile(Uri uri, String fileName) throws IOException
 	{
-		File file = new File(fileName);
-		FileInputStream objFileIS;
-		objFileIS = new FileInputStream(file);
-		ByteArrayOutputStream objByteArrayOS = new ByteArrayOutputStream();
-		byte[] byteBufferString = new byte[1024];
-		for (int readNum; (readNum = objFileIS.read(byteBufferString)) != -1;)
+		byte[] byteBufferString = getByte(fileName);
+
+		MainActivity.Instance.SetBusy(this, true, "Appel serveur", "Envoi du fichier");
+		try
 		{
-			objByteArrayOS.write(byteBufferString, 0, readNum);
-			Log.d(MainActivity.Instance.getClass().getPackage().toString(),"read " + readNum + " bytes");
+			MainActivity.BackgroundSaveBinaryFileThread BackgroundSaveBinaryFileThread = MainActivity.Instance.new BackgroundSaveBinaryFileThread();
+			String DataType = (fileName.substring(fileName.lastIndexOf("."))).toUpperCase().replace(".", "");
+			BackgroundSaveBinaryFileThread.setRunning(true, "", DataType, byteBufferString, uri, fileName);
+			BackgroundSaveBinaryFileThread.start();
 		}
-		MainActivity.BackgroundSaveBinaryFileThread BackgroundSaveBinaryFileThread = MainActivity.Instance.new BackgroundSaveBinaryFileThread();
-		BackgroundSaveBinaryFileThread.setRunning(true, "", "WAVE", byteBufferString, uri, fileName);
-		BackgroundSaveBinaryFileThread.start();
+		catch (Exception e)
+		{
+			MainActivity.Instance.SetBusy(this, false, null, null);
+		}
+	}
 
-/*		byte[] byteBinaryData = Base64.encode((objByteArrayOS.toByteArray()), Base64.DEFAULT);
-		String strAttachmentCoded = new String(byteBinaryData);
-*/	}
+	private byte[] getByte(String path)
+	{
+		byte[] getBytes = {};
+		try
+		{
+			File file = new File(path);
+			getBytes = new byte[(int) file.length()];
+			InputStream is = new FileInputStream(file);
+			is.read(getBytes);
+			is.close();
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		return getBytes;
+	}
 
-
-	public void onCheckboxClicked(View view) {
+	public void onCheckboxClicked(View view)
+	{
 		// Is the view now checked?
 		boolean checked = ((CheckBox) view).isChecked();
 
 		// Check which checkbox was clicked
-		switch(view.getId()) {
+		switch (view.getId())
+		{
 			case R.id.checkbox_Arrive:
 				if (checked)
-				{}
-            else
-				{}
+				{
+				} else
+				{
+				}
 				break;
 			case R.id.checkbox_Vu:
 				if (checked)
-				{}
-				else
-				{}
+				{
+				} else
+				{
+				}
 				break;
 			case R.id.checkbox_Parti:
 				if (checked)
-				{}
-				else
-				{}
+				{
+				} else
+				{
+				}
 				break;
 		}
 	}

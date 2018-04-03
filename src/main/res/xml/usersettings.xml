@@ -15,7 +15,15 @@
             android:summary="Utiliser Cisco pour se connecter au site"
             android:title="Utiliser Cisco" >
         </CheckBoxPreference>
+    </PreferenceCategory>
 
+    <PreferenceCategory android:title="Voix" >
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="prefDeleteAfterTransfert"
+            android:summary="Supprimer le fichier après le transfert"
+            android:title="Supprimer après transfert" >
+        </CheckBoxPreference>
         <!--<ListPreference
             android:key="prefUpdateFrequency"
             android:title="Reminder for Updation"
@@ -25,4 +33,12 @@
             />-->
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="Divers" >
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="prefDebugWS"
+            android:summary="Logger les traces des appels aux Web Services"
+            android:title="Traces des Web Services" >
+        </CheckBoxPreference>
+    </PreferenceCategory>
 </PreferenceScreen>
