@@ -66,7 +66,7 @@ import Region.FRXX.ClinicomLink.cli.Pat.ClassListofPatients;
 import Region.FRXX.ClinicomLink.cli.Pat.ClassPatient;
 
 public class MainActivity extends AppCompatActivity
-{
+{//test
 	public static MainActivity Instance;
 	private Boolean Debug_WS_preference = true;
 	final static String Address = "172.24.76.197";
@@ -728,6 +728,11 @@ public class MainActivity extends AppCompatActivity
 							displayPatients(ClassListofPatientsAppt);
 							return;
 						}
+						if (Bundle.getString("ACTION").equalsIgnoreCase("SAVE_BINARY_DATA"))
+						{
+							SetBusy(false, "", "");
+							return;
+						}
 						if (Bundle.getString("ACTION").equalsIgnoreCase("TEST_NETWORK"))
 						{
 							if ((Bundle.getString("ERROR") == null) || (Bundle.getString("ERROR").isEmpty()))
@@ -1154,6 +1159,7 @@ public class MainActivity extends AppCompatActivity
 						getContentResolver().delete(uri, null, null);
 						(new File(Filename)).delete();
 					}
+                    handler.sendMessage(Message);
 				}
 				catch (SoapFault12 e)
 				{
