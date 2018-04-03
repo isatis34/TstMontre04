@@ -266,6 +266,28 @@ public class MainActivity extends AppCompatActivity
 					}
 				}
 			});
+			Button btnDateStartPrevious = (Button) findViewById(R.id.btnDateStartPrevious);
+			btnDateStartPrevious.setOnClickListener(new View.OnClickListener()
+			{
+				@Override
+				public void onClick(View v)
+				{
+					SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yy");
+					String date = textDateStart.getText().toString();
+					try
+					{
+						Calendar cldr = Calendar.getInstance();
+						cldr.setTime(format1.parse(date));
+						cldr.add(Calendar.DATE, -1);
+						textDateStart.setText(format1.format(cldr.getTime()));
+						textDateStart.setTag(cldr.getTime());
+					}
+					catch (ParseException e)
+					{
+						e.printStackTrace();
+					}
+				}
+			});
 
 			Button btnShowDateEnd = (Button) findViewById(R.id.btnShowDateEnd);
 			btnShowDateEnd.setOnClickListener(new View.OnClickListener()
@@ -706,6 +728,11 @@ public class MainActivity extends AppCompatActivity
 							displayPatients(ClassListofPatientsAppt);
 							return;
 						}
+						if (Bundle.getString("ACTION").equalsIgnoreCase("SAVE_BINARY_DATA"))
+						{
+							SetBusy(false, "", "");
+							return;
+						}
 						if (Bundle.getString("ACTION").equalsIgnoreCase("TEST_NETWORK"))
 						{
 							if ((Bundle.getString("ERROR") == null) || (Bundle.getString("ERROR").isEmpty()))
@@ -1132,6 +1159,7 @@ public class MainActivity extends AppCompatActivity
 						getContentResolver().delete(uri, null, null);
 						(new File(Filename)).delete();
 					}
+                    handler.sendMessage(Message);
 				}
 				catch (SoapFault12 e)
 				{
