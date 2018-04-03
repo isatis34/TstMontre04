@@ -266,6 +266,28 @@ public class MainActivity extends AppCompatActivity
 					}
 				}
 			});
+			Button btnDateStartPrevious = (Button) findViewById(R.id.btnDateStartPrevious);
+			btnDateStartPrevious.setOnClickListener(new View.OnClickListener()
+			{
+				@Override
+				public void onClick(View v)
+				{
+					SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yy");
+					String date = textDateStart.getText().toString();
+					try
+					{
+						Calendar cldr = Calendar.getInstance();
+						cldr.setTime(format1.parse(date));
+						cldr.add(Calendar.DATE, -1);
+						textDateStart.setText(format1.format(cldr.getTime()));
+						textDateStart.setTag(cldr.getTime());
+					}
+					catch (ParseException e)
+					{
+						e.printStackTrace();
+					}
+				}
+			});
 
 			Button btnShowDateEnd = (Button) findViewById(R.id.btnShowDateEnd);
 			btnShowDateEnd.setOnClickListener(new View.OnClickListener()
