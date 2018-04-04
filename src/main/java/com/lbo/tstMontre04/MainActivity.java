@@ -10,6 +10,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.StrictMode;
@@ -47,6 +48,10 @@ import org.ksoap2.transport.HttpTransportSE;
 
 import java.io.EOFException;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -65,13 +70,15 @@ import Region.FRXX.ClinicomLink.cli.Wrd.ClassContext;
 import Region.FRXX.ClinicomLink.cli.Pat.ClassListofPatients;
 import Region.FRXX.ClinicomLink.cli.Pat.ClassPatient;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener
 {
 	public static MainActivity Instance;
+	public static String ApplicationDirectory = new File(Environment.getExternalStorageDirectory().toString() + "/ISC").toString();
 	private Boolean Debug_WS_preference = true;
-	final static String Address = "172.24.76.197";
-	final static String Port_Web = "57772";
-	final static String NameSpace = "lbo";
+	public static String Address = "172.24.76.197";
+	public static String Port_Web = "57772";
+	public static String NameSpace = "lbo";
+	public static boolean UseCisco = false;
 
 	private ExpandableListView LVPatients = null;
 	private String SnackbarText = "";
@@ -106,6 +113,19 @@ public class MainActivity extends AppCompatActivity
 							.setAction("Action", null).show();
 				}
 			});
+			SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+			sharedPrefs.registerOnSharedPreferenceChangeListener(this);
+
+			try
+			{
+				File folder = new File(ApplicationDirectory);
+				folder.mkdirs();
+
+			}
+			catch (Exception e)
+			{
+
+			}
 			/*if (!WaitForWifiConnexion())
 			{
 				finish();
@@ -132,15 +152,13 @@ public class MainActivity extends AppCompatActivity
 				dialog.show();
 				return;
 			}
-			SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-			Debug_WS_preference = sharedPrefs.getBoolean("prefDebugWS", false);
-			if (sharedPrefs.getBoolean("prefUseCisco", false))
+			readPreferences(false);
+			if (UseCisco)
 			{
 				try
 				{
 					Intent anyConnectIntent = new Intent(
 							"com.cisco.anyconnect.vpn.android.PRIMARY_ACTIVITY_ACTION_CONNECT_INTENT");
-
 		/*anyConnectIntent.putExtra(
 				"com.cisco.anyconnect.vpn.android.CONNECTION_ACTIVITY_CONNECT_KEY",
 				"anyconnect://create?name=iscmtp&host=sslvpn.intersystems.com");*/
@@ -173,7 +191,7 @@ public class MainActivity extends AppCompatActivity
 				public void onClick(View v)
 				{
 					final Calendar cldr = Calendar.getInstance();
-					Date date = (Date)textDateStart.getTag();
+					Date date = (Date) textDateStart.getTag();
 					if (date == null)
 						date = cldr.getTime();
 					cldr.setTime(date);
@@ -213,7 +231,7 @@ public class MainActivity extends AppCompatActivity
 				public void onClick(View v)
 				{
 					final Calendar cldr = Calendar.getInstance();
-					Date date = (Date)textDateEnd.getTag();
+					Date date = (Date) textDateEnd.getTag();
 					if (date == null)
 						date = cldr.getTime();
 					cldr.setTime(date);
@@ -324,8 +342,9 @@ public class MainActivity extends AppCompatActivity
 				public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3)
 				{
 
-					Object o = LVPatients.getItemAtPosition(position);
-					launchApptInfosActivity(o);
+					Object CurrAppt = LVPatients.getItemAtPosition(position);
+					Object NextAppt = LVPatients.getItemAtPosition(position + 1);
+					launchApptInfosActivity(CurrAppt, NextAppt);
 				}
 			});
 			PatientApptAdapter = new PatientApptAdapter(MainActivity.this, null);
@@ -428,13 +447,14 @@ public class MainActivity extends AppCompatActivity
 		return false;
 	}
 
-	private void launchApptInfosActivity(Object o)
+	private void launchApptInfosActivity(Object CurrAppt, Object NextAppt)
 	{
 		try
 		{
 			Intent intent = new Intent(this, ApptInfosActivity.class);
 			Bundle bundle = new Bundle();
-			bundle.putSerializable("ClassPatient", (Serializable) o);
+			bundle.putSerializable("ClassPatient", (Serializable) CurrAppt);
+			bundle.putSerializable("ClassPatientNext", (Serializable) NextAppt);
 			intent.putExtras(bundle);
 			this.startActivity(intent);
 		}
@@ -466,8 +486,9 @@ public class MainActivity extends AppCompatActivity
 			{
 				case R.id.Action_Infos_RDV:
 				{
-					Object o = LVPatients.getItemAtPosition((int) info.id);
-					launchApptInfosActivity(o);
+					Object CurrAppt = LVPatients.getItemAtPosition((int) info.id);
+					Object NextAppt = LVPatients.getItemAtPosition((int) info.id + 1);
+					launchApptInfosActivity(CurrAppt, NextAppt);
 					return true;
 				}
 				case R.id.Action2:
@@ -497,7 +518,7 @@ public class MainActivity extends AppCompatActivity
 
 		SetBusy(true, "Appel serveur", "Chargement des RDVs");
 		BackgroundLoadPatientsByRessourcesThread BackgroundLoadPatientsByRessourcesThread = new BackgroundLoadPatientsByRessourcesThread();
-		BackgroundLoadPatientsByRessourcesThread.setRunning(true, Location, Ressource, "01/01/2011", "08/09/2014");
+		BackgroundLoadPatientsByRessourcesThread.setRunning(true, this.getApplicationContext(), Location, Ressource, "01/01/2011", "08/09/2014");
 		BackgroundLoadPatientsByRessourcesThread.start();
 		return true;
 
@@ -507,6 +528,7 @@ public class MainActivity extends AppCompatActivity
 	{
 		SetBusy(this, busy, title, text);
 	}
+
 	public void SetBusy(Context context, Boolean busy, String title, String text)
 	{
 		setProgressBarIndeterminateVisibility(busy);
@@ -599,7 +621,7 @@ public class MainActivity extends AppCompatActivity
 			ht.debug = Debug_WS_preference;
 			StrictMode.ThreadPolicy tp = StrictMode.ThreadPolicy.LAX;
 			StrictMode.setThreadPolicy(tp);
-			Log.d(this.getClass().getPackage().toString(), "Before call WS (URL: " + URL + ")");
+			Log.d(this.getClass().getPackage().toString(), "Before call WS (" + METHOD_NAME + " / " + URL + ")");
 			ht.call(SOAP_ACTION, envelope, headerPropertyArrayList);
 			Log.d(this.getClass().getPackage().toString(), "After call WS");
 			if (ht.debug)
@@ -702,12 +724,30 @@ public class MainActivity extends AppCompatActivity
 					Bundle Bundle = msg.getData();
 					if (Bundle.getString("ERROR_TEXT") != null)
 					{
-						/*if (timer != null)
-						{
-							timer.cancel();
-							SetControlActive(true);
-						}*/
+						//File(getApplicationInfo().dataDir, "ListPatByRes.xml").toString();
 						SetBusy(false, "", "");
+						if (Bundle.getString("ACTION").equalsIgnoreCase("FETCH_PATIENTS_BY_RESSOURCE"))
+						{
+							try
+							{
+								File file = new File(ApplicationDirectory, "ListPatByRes.xml");
+								if (file.exists())
+								{
+									FileInputStream fis = new FileInputStream(file);
+									ObjectInputStream is = new ObjectInputStream(fis);
+									ClassListofPatientsAppt ClassPatientsResult = (ClassListofPatientsAppt) is.readObject();
+									is.close();
+									fis.close();
+									displayPatients(ClassPatientsResult);
+									showDialogAlertDefault(Bundle.getString("ERROR_TITLE"), Bundle.getString("ERROR_TEXT") + "\nAffichage des anciennes données", false);
+									return;
+								}
+							}
+							catch (Exception e)
+							{
+								showDialogAlertDefault(Bundle.getString("ERROR_TITLE"), e.toString(), false);
+							}
+						}
 						showDialogAlertDefault(Bundle.getString("ERROR_TITLE"), Bundle.getString("ERROR_TEXT"), false);
 						return;
 					}
@@ -839,6 +879,24 @@ public class MainActivity extends AppCompatActivity
 		return super.onOptionsItemSelected(item);
 	}
 
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s)
+	{
+		readPreferences(false);
+	}
+
+	private Boolean readPreferences(Boolean refreshAll)
+	{
+		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+		Address = sharedPrefs.getString("prefServerAddress", "172.24.76.176");
+		Port_Web = sharedPrefs.getString("prefServerPortweb", "57772");
+		NameSpace = sharedPrefs.getString("prefServerNSP", "lbo");
+		Debug_WS_preference = sharedPrefs.getBoolean("prefDebugWS", false);
+		UseCisco = sharedPrefs.getBoolean("prefUseCisco", false);
+		return true;
+	}
+
 	public class BackgroundLoadPatientsByRessourcesThread extends Thread
 	{
 		volatile boolean running = false;
@@ -846,10 +904,12 @@ public class MainActivity extends AppCompatActivity
 		volatile String Location;
 		volatile String StartDate;
 		volatile String EndDate;
+		volatile Context Context;
 
-		void setRunning(boolean b, String location, String codeRessource, String startDate, String endDate)
+		void setRunning(boolean b, Context context, String location, String codeRessource, String startDate, String endDate)
 		{
 			running = b;
+			Context = context;
 			Location = location;
 			CodeRessource = codeRessource;
 			StartDate = startDate;
@@ -863,6 +923,7 @@ public class MainActivity extends AppCompatActivity
 			Bundle Bundle = new Bundle();
 			Bundle.putString("ACTION", "FETCH_PATIENTS_BY_RESSOURCE");
 			Message.setData(Bundle);
+			String fileName = new File(MainActivity.ApplicationDirectory, "ListPatByRes.xml").toString();
 			try
 			{
 				String CLASSNAME = "Region.FRXX.ClinicomLink.WebServices.Wrd.ClassDocumentsServices";
@@ -874,7 +935,6 @@ public class MainActivity extends AppCompatActivity
 				PropertyInfo pi;
 
 				PatientAdapter.setPatients(null);
-
 				try
 				{
 					SnackbarText = "";
@@ -933,7 +993,7 @@ public class MainActivity extends AppCompatActivity
 					ht.debug = Debug_WS_preference;
 					StrictMode.ThreadPolicy tp = StrictMode.ThreadPolicy.LAX;
 					StrictMode.setThreadPolicy(tp);
-					Log.d(this.getClass().getPackage().toString(), "Before call WS (URL: " + URL + ")");
+					Log.d(this.getClass().getPackage().toString(), "Before call WS (" + METHOD_NAME + " / " + URL + ")");
 					ht.call(SOAP_ACTION, envelope, headerPropertyArrayList);
 					Log.d(this.getClass().getPackage().toString(), "After call WS");
 					if (ht.debug)
@@ -971,10 +1031,23 @@ public class MainActivity extends AppCompatActivity
 					}
 					ClassListofPatientsAppt = new ClassListofPatientsAppt(
 							(SoapObject) response.getProperty("ClsOUTListofPatients"));
-					//Bundle.putString("ERROR_TITLE", "Reset Arduino");
-					//Message.setData(Bundle);
-					//Bundle.putString("ERROR_TEXT", "Reset Arduino lancé");
-					//Message.setData(Bundle);
+
+					File file = new File(fileName);
+					try
+					{
+						file.delete();
+					}
+					catch (Exception e)
+					{
+					}
+					FileOutputStream fos = new FileOutputStream(new File(MainActivity.ApplicationDirectory, "ListPatByRes.xml"));
+					ObjectOutputStream os = new ObjectOutputStream(fos);
+					os.writeObject(ClassListofPatientsAppt);
+					os.flush();
+					fos.getFD().sync();
+					os.close();
+					fos.close();
+
 					Bundle.putSerializable("PATIENTS_APPT", ClassListofPatientsAppt);
 					Message.setData(Bundle);
 					handler.sendMessage(Message);
@@ -1117,7 +1190,7 @@ public class MainActivity extends AppCompatActivity
 					ht.debug = Debug_WS_preference;
 					StrictMode.ThreadPolicy tp = StrictMode.ThreadPolicy.LAX;
 					StrictMode.setThreadPolicy(tp);
-					Log.d(this.getClass().getPackage().toString(), "Before call WS (URL: " + URL + ")");
+					Log.d(this.getClass().getPackage().toString(), "Before call WS (" + METHOD_NAME + " / " + URL + ")");
 					ht.call(SOAP_ACTION, envelope, headerPropertyArrayList);
 					Log.d(this.getClass().getPackage().toString(), "After call WS");
 					if (ht.debug)
@@ -1159,7 +1232,7 @@ public class MainActivity extends AppCompatActivity
 						getContentResolver().delete(uri, null, null);
 						(new File(Filename)).delete();
 					}
-                    handler.sendMessage(Message);
+					handler.sendMessage(Message);
 				}
 				catch (SoapFault12 e)
 				{
