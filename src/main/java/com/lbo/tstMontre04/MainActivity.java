@@ -73,6 +73,7 @@ import Region.FRXX.ClinicomLink.cli.Pat.ClassPatient;
 public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener
 {
 	public static MainActivity Instance;
+	public static boolean ModeDegrade = true;
 	public static String ApplicationDirectory = new File(Environment.getExternalStorageDirectory().toString() + "/ISC").toString();
 	private Boolean Debug_WS_preference = true;
 	public static String Address = "172.24.76.197";
@@ -126,16 +127,27 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 			{
 
 			}
-			/*if (!WaitForWifiConnexion())
+			/*
+			if (!WaitForWifiConnexion())
 			{
-				finish();
-				System.exit(0);
-			}*/
+				//finish();
+				//System.exit(0);
+			}
 
 			if (!isNetworkAvailable())
 			{
 				Log.d(this.getClass().getPackage().toString(), "Réseau non connecté");
+				Message Message = handler.obtainMessage();
+				Bundle Bundle = new Bundle();
+				Bundle.putString("ACTION", "FETCH_PATIENTS_BY_RESSOURCE");
+				Message.setData(Bundle);
+				Bundle.putString("ERROR_TITLE", "Erreur");
+				Message.setData(Bundle);
+				Bundle.putString("ERROR_TEXT", "Réseau non connecté");
+				Message.setData(Bundle);
+				handler.sendMessage(Message);
 
+				/ *
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
 				builder.setMessage(R.string.dialog_message_NetworkNotConnected)
 						.setTitle(R.string.dialog_title_NetworkNotConnected)
@@ -150,8 +162,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 				;
 				AlertDialog dialog = builder.create();
 				dialog.show();
-				return;
-			}
+				return;* /
+			}*/
 			readPreferences(false);
 			if (UseCisco)
 			{
@@ -343,7 +355,12 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 				{
 
 					Object CurrAppt = LVPatients.getItemAtPosition(position);
-					Object NextAppt = LVPatients.getItemAtPosition(position + 1);
+					Object NextAppt = null;
+					try
+					{
+						NextAppt = LVPatients.getItemAtPosition(position + 1);
+					}
+					catch (Exception e) {}
 					launchApptInfosActivity(CurrAppt, NextAppt);
 				}
 			});
@@ -362,6 +379,14 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 			Log.d(this.getClass().getPackage().toString(), e.getMessage());
 		}
 	}
+
+	private boolean isNetworkAvailable()
+	{
+		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+		return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+	}
+
 
 	private boolean WaitForWifiConnexion()
 	{
@@ -487,7 +512,12 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 				case R.id.Action_Infos_RDV:
 				{
 					Object CurrAppt = LVPatients.getItemAtPosition((int) info.id);
-					Object NextAppt = LVPatients.getItemAtPosition((int) info.id + 1);
+					Object NextAppt = null;
+					try
+					{
+						NextAppt = LVPatients.getItemAtPosition((int) info.id + 1);
+					}
+					catch (Exception e) {}
 					launchApptInfosActivity(CurrAppt, NextAppt);
 					return true;
 				}
@@ -560,6 +590,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 		PropertyInfo pi;
 
 		PatientAdapter.setPatients(null);
+		MainActivity.Instance.ModeDegrade = true;
 
 		Message Message = handler.obtainMessage();
 		Bundle Bundle = new Bundle();
@@ -702,14 +733,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 		}
 	}
 
-	private boolean isNetworkAvailable()
-	{
-		ConnectivityManager connectivityManager
-				= (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-		return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-	}
-
 	Handler handler = new Handler()
 	{
 		@Override
@@ -739,7 +762,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 									is.close();
 									fis.close();
 									displayPatients(ClassPatientsResult);
-									showDialogAlertDefault(Bundle.getString("ERROR_TITLE"), Bundle.getString("ERROR_TEXT") + "\nAffichage des anciennes données", false);
+
+									SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yy");
+									showDialogAlertDefault(Bundle.getString("ERROR_TITLE"), Bundle.getString("ERROR_TEXT") + "\nAffichage des anciennes données (" + format1.format(file.lastModified()) + ")", false);
 									return;
 								}
 							}
@@ -755,6 +780,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 					{
 						if (Bundle.getString("ACTION").equalsIgnoreCase("SEARCHIDENTITY"))
 						{
+							SetBusy(false, "", "");
+							MainActivity.Instance.ModeDegrade = false;
 							ClassListofPatients ClassPatientsResult = (ClassListofPatients) Bundle
 									.getSerializable("PATIENTS");
 							displayPatients(ClassPatientsResult);
@@ -763,6 +790,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 						if (Bundle.getString("ACTION").equalsIgnoreCase("FETCH_PATIENTS_BY_RESSOURCE"))
 						{
 							SetBusy(false, "", "");
+							MainActivity.Instance.ModeDegrade = false;
 							ClassListofPatientsAppt ClassListofPatientsAppt = (ClassListofPatientsAppt) Bundle
 									.getSerializable("PATIENTS_APPT");
 							displayPatients(ClassListofPatientsAppt);
@@ -778,6 +806,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 							if ((Bundle.getString("ERROR") == null) || (Bundle.getString("ERROR").isEmpty()))
 							{
 								SetBusy(false, "", "");
+								return;
 							} else
 							{
 								SetBusy(false, "", "");
@@ -935,6 +964,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 				PropertyInfo pi;
 
 				PatientAdapter.setPatients(null);
+				MainActivity.Instance.ModeDegrade = true;
 				try
 				{
 					SnackbarText = "";

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/LLApptInfosMain"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
               android:orientation="vertical">
@@ -85,12 +86,24 @@
                       android:layout_height="wrap_content"
                       android:orientation="horizontal">
 
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1">
+            </Space>
+
             <CheckBox
                 android:id="@+id/checkbox_Arrive"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/Arrive"
                 android:textSize="25sp"/>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1">
+            </Space>
 
             <CheckBox
                 android:id="@+id/checkbox_Vu"
@@ -99,26 +112,62 @@
                 android:text="@string/Vu"
                 android:textSize="25sp"/>
 
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1">
+            </Space>
+
             <CheckBox
                 android:id="@+id/checkbox_Parti"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/Parti"
                 android:textSize="25sp"/>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1">
+            </Space>
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btn_RecordVoice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/Enregistrer"/>
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="horizontal">
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1">
+            </Space>
+
+            <Button
+                android:id="@+id/btn_RecordVoice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/Enregistrer"/>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1">
+            </Space>
+        </LinearLayout>
     </LinearLayout>
+
+    <Space
+        android:layout_width="1dp"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+    </Space>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:id="@+id/LLApptInfosNext"
                   android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
-                  android:layout_alignParentBottom="true"
+                  android:gravity="center|bottom"
                   android:orientation="vertical">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"

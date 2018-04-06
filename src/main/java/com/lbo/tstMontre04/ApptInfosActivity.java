@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -37,9 +38,17 @@ import Region.FRXX.ClinicomLink.cli.Pat.ClassPatientAppt;
 public class ApptInfosActivity extends AppCompatActivity
 {
 	private ClassPatientAppt patient = null;
+	private ClassPatientAppt patientNext = null;
 	private int[] colors = new int[]{0xFF007DFF, 0xFFFFD3E3, 0xFF888888};
 	private static final int ACTIVITY_RECORD_SOUND = 0;
 	private File imageToStore = null;
+
+	private static final int SWIPE_MIN_DISTANCE = 120;
+	private static final int SWIPE_MAX_OFF_PATH = 250;
+	private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+
+	float downX = -1;
+	float upX = -1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -52,6 +61,7 @@ public class ApptInfosActivity extends AppCompatActivity
 		supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_appt_infos);
 		patient = (ClassPatientAppt) getIntent().getSerializableExtra("ClassPatient");
+		patientNext = (ClassPatientAppt) getIntent().getSerializableExtra("ClassPatientNext");
 
 		LinearLayout = (LinearLayout) findViewById(R.id.LLApptInfos);
 		if (patient.Sex.equalsIgnoreCase("F"))
@@ -86,37 +96,127 @@ public class ApptInfosActivity extends AppCompatActivity
 		for (int checkbox : checkboxes)
 		{
 			CheckBox = (CheckBox) findViewById(checkbox);
-			CheckBox.setOnClickListener(new OnClickListener()
+			if (MainActivity.Instance.ModeDegrade)
 			{
-				@Override
-				public void onClick(View v)
+				CheckBox.setEnabled(false);
+			} else
+			{
+				CheckBox.setOnClickListener(new OnClickListener()
 				{
-					onCheckboxClicked(v);
-				}
-			});
+					@Override
+					public void onClick(View v)
+					{
+						onCheckboxClicked(v);
+					}
+				});
+			}
+		}
+		switch (patient.ApptStatus)
+		{
+			case "A":
+				CheckBox = (CheckBox) findViewById(R.id.checkbox_Arrive);
+				CheckBox.setEnabled(false);
+				CheckBox.setChecked(true);
+				break;
+			case "V":
+				CheckBox = (CheckBox) findViewById(R.id.checkbox_Arrive);
+				CheckBox.setEnabled(false);
+				CheckBox.setChecked(true);
+				CheckBox = (CheckBox) findViewById(R.id.checkbox_Vu);
+				CheckBox.setEnabled(false);
+				CheckBox.setChecked(true);
+				break;
 		}
 		Button btn_RecordVoice = (Button) findViewById(R.id.btn_RecordVoice);
-		btn_RecordVoice.setOnClickListener(new View.OnClickListener()
-										   {
-											   @Override
-											   public void onClick(View v)
+		if (MainActivity.Instance.ModeDegrade)
+		{
+			btn_RecordVoice.setVisibility(View.GONE);
+		} else
+		{
+			btn_RecordVoice.setOnClickListener(new View.OnClickListener()
 											   {
+												   @Override
+												   public void onClick(View v)
+												   {
 
-												   try
-												   {
-													   imageToStore = File.createTempFile("TrakCare_" + patient.IPP + "_", ".voice", Environment.getExternalStorageDirectory());
+													   try
+													   {
+														   imageToStore = File.createTempFile("TrakCare_" + patient.IPP + "_", ".voice", Environment.getExternalStorageDirectory());
+													   }
+													   catch (IOException e)
+													   {
+														   e.printStackTrace();
+													   }
+													   Log.d(MainActivity.Instance.getClass().getPackage().toString(), "imageToStore:" + imageToStore);
+													   Intent intent = new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
+													   intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageToStore));
+													   startActivityForResult(intent, ACTIVITY_RECORD_SOUND);
 												   }
-												   catch (IOException e)
-												   {
-													   e.printStackTrace();
-												   }
-												   Log.d(MainActivity.Instance.getClass().getPackage().toString(), "imageToStore:" + imageToStore);
-												   Intent intent = new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
-												   intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageToStore));
-												   startActivityForResult(intent, ACTIVITY_RECORD_SOUND);
 											   }
-										   }
-		);
+			);
+		}
+
+
+		if (patientNext != null)
+		{
+			LinearLayout = (LinearLayout) findViewById(R.id.LLApptInfosNext);
+			if (patientNext.Sex.equalsIgnoreCase("F"))
+				LinearLayout.setBackgroundColor(colors[1]);
+			else if (patientNext.Sex.equalsIgnoreCase("M"))
+				LinearLayout.setBackgroundColor(colors[0]);
+			else
+				LinearLayout.setBackgroundColor(colors[2]);
+
+			TextView = (TextView) findViewById(R.id.nomNext);
+			TextView.setText(patientNext.FirstName);
+			TextView = (TextView) findViewById(R.id.prenomNext);
+			TextView.setText(patientNext.LastName);
+			if ((patientNext.Sex.equalsIgnoreCase("F")) && (patientNext.MaidenName != null)
+					&& (!patientNext.MaidenName.isEmpty()))
+			{
+				TextView = (TextView) findViewById(R.id.nomJFNext);
+				TextView.setText("(" + patientNext.MaidenName + ")");
+				TextView.setVisibility(View.VISIBLE);
+			}
+			TextView = (TextView) findViewById(R.id.ageNext);
+			TextView.setText(patientNext.Age);
+			//extView = (TextView) findViewById(R.id.statusEpisodeNext);
+
+			TextView = (TextView) findViewById(R.id.ApptDTTMNext);
+			TextView.setText(patientNext.ApptDate + " " + patientNext.ApptTime);
+
+			TextView = (TextView) findViewById(R.id.ApptStatusNext);
+			TextView.setText(patientNext.ApptStatus);
+		}
+
+		LinearLayout LLApptInfosMain = (LinearLayout) findViewById(R.id.LLApptInfosMain);
+		LLApptInfosMain.setOnTouchListener(new View.OnTouchListener() {
+			@Override
+			public boolean onTouch(View view, MotionEvent motionEvent)
+			{
+				switch(motionEvent.getAction()){
+					case MotionEvent.ACTION_DOWN:{
+						downX = motionEvent.getX();}
+					case MotionEvent.ACTION_UP:{
+						upX = motionEvent.getX();
+
+						float deltaX = downX - upX;
+
+						if(Math.abs(deltaX)>0){
+							if(deltaX>=0){
+								//swipeToRight();
+								return true;
+							}else{
+								//swipeToLeft();
+								return  true;
+							}
+						}
+					}
+				}
+				return false;
+			}
+
+	});
 	}
 
 	/* Called when the second activity's finished */
