@@ -763,7 +763,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 									fis.close();
 									displayPatients(ClassPatientsResult);
 
-									SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
+									SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yy HH:mm");
 									showDialogAlertDefault(Bundle.getString("ERROR_TITLE"), Bundle.getString("ERROR_TEXT") + "\nAffichage des anciennes données (" + format1.format(file.lastModified()) + ")", false);
 									return;
 								}
