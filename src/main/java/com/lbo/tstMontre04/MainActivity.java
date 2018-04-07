@@ -1095,6 +1095,16 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 					handler.sendMessage(Message);
 					return;
 				}
+				catch (java.net.ConnectException e)
+				{
+					Log.d(this.getClass().getPackage().toString(), "ConnectException" + e.getMessage());
+					Bundle.putString("ERROR_TITLE", "Erreur " + METHOD_NAME);
+					Message.setData(Bundle);
+					Bundle.putString("ERROR_TEXT", "Erreur de connexion au serveur.");
+					Message.setData(Bundle);
+					handler.sendMessage(Message);
+					return;
+				}
 				catch (final EOFException e)
 				{
 					Log.d(this.getClass().getPackage().toString(), "EOFException");
