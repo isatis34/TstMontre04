@@ -58,7 +58,7 @@
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="prefDeleteAfterTransfert"
-            android:summary="Supprimer le fichier après le transfert"
+            android:summary="Supprimer le fichier local après le transfert"
             android:title="Supprimer après transfert" >
         </CheckBoxPreference>
         <!--<ListPreference
