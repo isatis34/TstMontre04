@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 	public static String Port_Web = "57772";
 	public static String NameSpace = "lbo";
 	public static boolean UseCisco = false;
+	public static int WSTimeout = 10000;
 
 	private ExpandableListView LVPatients = null;
 	private String SnackbarText = "";
@@ -1010,7 +1011,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 					envelope.addMapping(NAMESPACE, "ClassListofPatients", ClassListofPatientsAppt.class);
 					envelope.addMapping(NAMESPACE, "ClassPatientAppt", ClassPatientAppt.class);
 
-					HttpTransportSE ht = new HttpTransportSE(URL);
+					HttpTransportSE ht = new HttpTransportSE(URL, MainActivity.WSTimeout);
 
 					org.ksoap2.transport.ServiceConnection ServiceConnection = ht.getServiceConnection();
 					ServiceConnection.setRequestProperty("Expect", "100-continue");
