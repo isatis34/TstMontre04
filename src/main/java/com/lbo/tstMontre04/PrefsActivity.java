@@ -72,6 +72,36 @@ public class PrefsActivity extends PreferenceActivity
 				return true;
 			}
 		});
+		@SuppressWarnings("deprecation") final EditTextPreference editTextprefDateStart = (EditTextPreference) findPreference("prefDateStart");
+		value = GetValue(sharedPreferences.getString("prefDateStart", ""), "Nombre de jours avant d'aujourd'hui");
+		editTextprefDateStart.setSummary(value);
+		editTextprefDateStart.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+			@Override
+			public boolean onPreferenceChange(Preference preference, Object o) {
+
+				String value = GetValue(o, "0");
+				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+				sharedPreferences.edit().putString("prefDateStart", value).apply();
+				editTextprefDateStart.setSummary(value);
+
+				return true;
+			}
+		});
+		@SuppressWarnings("deprecation") final EditTextPreference editTextprefDateEnd = (EditTextPreference) findPreference("prefDateEnd");
+		value = GetValue(sharedPreferences.getString("prefDateEnd", ""), "Nombre de jours après d'aujourd'hui");
+		editTextprefDateEnd.setSummary(value);
+		editTextprefDateEnd.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+			@Override
+			public boolean onPreferenceChange(Preference preference, Object o) {
+
+				String value = GetValue(o, "1");
+				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+				sharedPreferences.edit().putString("prefDateEnd", value).apply();
+				editTextprefDateEnd.setSummary(value);
+
+				return true;
+			}
+		});
 
 	}
 	private static String GetValue(Object Value, String Text)

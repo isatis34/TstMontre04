@@ -26,6 +26,12 @@
             android:key="prefServerNSP"
             android:summary="Namespace à utiliser"
             android:title="Namespace" />
+        <EditTextPreference
+            android:key="prefWSTimeOut"
+            android:summary="TimeOut d'appel des Web Services en secondes"
+            android:title="TimeOut"
+            android:inputType="numberDecimal"
+            android:digits="0123456789"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Recherche" >
@@ -41,17 +47,33 @@
             android:summary="Ressource"
             android:title="Ressource" >
         </EditTextPreference>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="prefUseDateStart"
+            android:summary="Utiliser une date de début"
+            android:title="Utiliser date de début" />
         <EditTextPreference
-            android:defaultValue="J"
+            android:defaultValue="0"
             android:key="prefDateStart"
-            android:summary="Date de début de recherche"
-            android:title="Date de début" >
+            android:summary="Nombre de jours avant d'aujourd'hui"
+            android:title="Nombre de jours avant d'aujourd'hui"
+            android:dependency="prefUseDateStart"
+            android:inputType="numberDecimal|numberSigned"
+            android:digits="0123456789">
         </EditTextPreference>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="prefUseDateEnd"
+            android:summary="Utiliser une date de fin"
+            android:title="Utiliser date de fin" />
         <EditTextPreference
-            android:defaultValue="J+1"
+            android:defaultValue="1"
             android:key="prefDateEnd"
-            android:summary="Date de fin de recherche"
-            android:title="Date de fin" >
+            android:summary="Nombre de jours après d'aujourd'hui"
+            android:title="Nombre de jours après d'aujourd'hui"
+            android:dependency="prefUseDateEnd"
+            android:inputType="numberDecimal|numberSigned"
+            android:digits="0123456789" >
         </EditTextPreference>
     </PreferenceCategory>
     <PreferenceCategory android:title="Voix" >

@@ -81,6 +81,10 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 	public static String NameSpace = "lbo";
 	public static boolean UseCisco = false;
 	public static int WSTimeout = 10000;
+	public static int PrefDateStart = 0;
+	public static int PrefDateEnd = 1;
+	public static boolean PrefUseDateStart = true;
+	public static boolean PrefUseDateEnd = true;
 
 	private ExpandableListView LVPatients = null;
 	private String SnackbarText = "";
@@ -234,6 +238,10 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 					picker.show();
 				}
 			});
+			if (PrefUseDateStart) {
+				String Date = ComputeDate(PrefDateStart);
+				textDateStart.setText(Date);
+			}
 			// endregion
 			// region Gestion textDateEnd
 			textDateEnd = (EditText) findViewById(R.id.textDateEnd);
@@ -274,6 +282,10 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 					picker.show();
 				}
 			});
+			if (PrefUseDateEnd) {
+				String Date = ComputeDate(PrefDateEnd);
+				textDateEnd.setText(Date);
+			}
 			// endregion
 			Button btnDateStartNext = (Button) findViewById(R.id.btnDateStartNext);
 			btnDateStartNext.setOnClickListener(new View.OnClickListener()
@@ -379,6 +391,23 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 		{
 			Log.d(this.getClass().getPackage().toString(), e.getMessage());
 		}
+	}
+
+	private String ComputeDate(int nbDays)
+	{
+		SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yy");
+		try
+		{
+			Calendar cldr = Calendar.getInstance();
+			cldr.setTime(cldr.getTime());
+			cldr.add(Calendar.DATE, nbDays);
+			return format1.format(cldr.getTime());
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		return "";
 	}
 
 	private boolean isNetworkAvailable()
@@ -924,6 +953,30 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 		NameSpace = sharedPrefs.getString("prefServerNSP", "lbo");
 		Debug_WS_preference = sharedPrefs.getBoolean("prefDebugWS", false);
 		UseCisco = sharedPrefs.getBoolean("prefUseCisco", false);
+		WSTimeout = sharedPrefs.getInt("prefWSTimeOut", 10);
+		WSTimeout *= 1000;
+		if (WSTimeout == 0)
+			WSTimeout = 10000;
+		if (WSTimeout >= 30000)
+			WSTimeout = 20000;
+
+		try {
+			PrefDateStart = sharedPrefs.getInt("prefDateStart", 0);
+		}
+		catch (Exception e)
+		{
+			PrefDateStart = 0;
+		}
+		try {
+		PrefDateEnd = sharedPrefs.getInt("prefDateEnd", 1);
+		}
+		catch (Exception e)
+		{
+			PrefDateEnd = 1;
+		}
+
+		PrefUseDateStart = sharedPrefs.getBoolean("prefUseDateStart", true);
+		PrefUseDateEnd = sharedPrefs.getBoolean("prefUseDateEnd", true);
 		return true;
 	}
 
