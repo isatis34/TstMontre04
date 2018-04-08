@@ -13,8 +13,19 @@
             android:defaultValue="false"
             android:key="prefUseCisco"
             android:summary="Utiliser Cisco pour se connecter au site"
-            android:title="Utiliser Cisco" >
-        </CheckBoxPreference>
+            android:title="Utiliser Cisco" />
+        <EditTextPreference
+            android:key="prefServerAddress"
+            android:summary="Adresse/nom du serveur"
+            android:title="Serveur" />
+        <EditTextPreference
+            android:key="prefServerPortweb"
+            android:summary="Port Web du serveur"
+            android:title="Port Web" />
+        <EditTextPreference
+            android:key="prefServerNSP"
+            android:summary="Namespace à utiliser"
+            android:title="Namespace" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Recherche" >
@@ -47,7 +58,7 @@
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="prefDeleteAfterTransfert"
-            android:summary="Supprimer le fichier après le transfert"
+            android:summary="Supprimer le fichier local après le transfert"
             android:title="Supprimer après transfert" >
         </CheckBoxPreference>
         <!--<ListPreference
