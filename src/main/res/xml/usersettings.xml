@@ -16,16 +16,22 @@
             android:title="Utiliser Cisco" />
         <EditTextPreference
             android:key="prefServerAddress"
-            android:summary="Adresse/nom du serveur"
+            android:summary="@string/PrefServerAddressSummary"
             android:title="Serveur" />
         <EditTextPreference
             android:key="prefServerPortweb"
-            android:summary="Port Web du serveur"
+            android:summary="@string/PrefServerPortwebSummary"
             android:title="Port Web" />
         <EditTextPreference
             android:key="prefServerNSP"
-            android:summary="Namespace à utiliser"
+            android:summary="@string/PrefNSPSummary"
             android:title="Namespace" />
+        <EditTextPreference
+            android:key="prefWSTimeOut"
+            android:summary="@string/PrefWSTimeOutSummary"
+            android:title="TimeOut"
+            android:inputType="number"
+            android:digits="0123456789"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Recherche" >
@@ -41,17 +47,33 @@
             android:summary="Ressource"
             android:title="Ressource" >
         </EditTextPreference>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="prefUseDateStart"
+            android:summary="Utiliser une date de début"
+            android:title="Utiliser date de début" />
         <EditTextPreference
-            android:defaultValue="J"
+            android:defaultValue="0"
             android:key="prefDateStart"
-            android:summary="Date de début de recherche"
-            android:title="Date de début" >
+            android:summary="@string/PrefNbreJoursAvantSummary"
+            android:title="Nombre de jours avant d'aujourd'hui"
+            android:dependency="prefUseDateStart"
+            android:inputType="number"
+            android:digits="0123456789">
         </EditTextPreference>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="prefUseDateEnd"
+            android:summary="Utiliser une date de fin"
+            android:title="Utiliser date de fin" />
         <EditTextPreference
-            android:defaultValue="J+1"
+            android:defaultValue="1"
             android:key="prefDateEnd"
-            android:summary="Date de fin de recherche"
-            android:title="Date de fin" >
+            android:summary="@string/PrefNbreJoursApresSummary"
+            android:title="Nombre de jours après d'aujourd'hui"
+            android:dependency="prefUseDateEnd"
+            android:inputType="number"
+            android:digits="0123456789" >
         </EditTextPreference>
     </PreferenceCategory>
     <PreferenceCategory android:title="Voix" >

@@ -60,14 +60,17 @@
                     android:orientation="horizontal"
                     android:padding="0dp">
 
-                    <Button
+                    <ImageButton
                         android:id="@+id/btnDateStartPrevious"
-                        android:layout_width="@dimen/button_width"
+                        android:layout_width="@dimen/button_prevnext_width"
                         android:layout_height="wrap_content"
                         android:layout_margin="0dp"
                         android:layout_weight="0"
                         android:padding="0dp"
-                        android:text="&lt;&lt;"/>
+                        android:text="&lt;&lt;"
+                        android:layout_gravity="center"
+                        android:background="@null"
+                        android:src="@drawable/prev32x32"/>
 
                     <EditText
                         android:id="@+id/textDateStart"
@@ -76,16 +79,20 @@
                         android:layout_margin="0dp"
                         android:layout_weight="1"
                         android:hint="Date début"
+                        android:layout_gravity="center"
                         android:textAlignment="center"/>
 
-                    <Button
+                    <ImageButton
                         android:id="@+id/btnDateStartNext"
-                        android:layout_width="@dimen/button_width"
+                        android:layout_width="@dimen/button_prevnext_width"
                         android:layout_height="wrap_content"
                         android:layout_margin="0dp"
                         android:layout_weight="0"
                         android:padding="0dp"
-                        android:text="&gt;&gt;"/>
+                        android:text="&gt;&gt;"
+                        android:layout_gravity="center"
+                        android:background="@null"
+                        android:src="@drawable/next32x32"/>
 
                 </LinearLayout>
 
@@ -98,14 +105,17 @@
                     android:padding="0dp"
                     android:visibility="gone">
 
-                    <Button
+                    <ImageButton
                         android:id="@+id/btnDateEndPrevious"
-                        android:layout_width="@dimen/button_width"
+                        android:layout_width="@dimen/button_prevnext_width"
                         android:layout_height="wrap_content"
                         android:layout_margin="0dp"
                         android:layout_weight="0"
                         android:padding="0dp"
-                        android:text="&lt;&lt;"/>
+                        android:text="&lt;&lt;"
+                        android:layout_gravity="center"
+                        android:background="@null"
+                        android:src="@drawable/prev32x32"/>
 
                     <EditText
                         android:id="@+id/textDateEnd"
@@ -114,16 +124,20 @@
                         android:layout_margin="0dp"
                         android:layout_weight="1"
                         android:hint="Date fin"
-                        android:textAlignment="center"/>
+                        android:textAlignment="center"
+                        android:layout_gravity="center"/>
 
-                    <Button
+                    <ImageButton
                         android:id="@+id/btnDateEndNext"
-                        android:layout_width="@dimen/button_width"
+                        android:layout_width="@dimen/button_prevnext_width"
                         android:layout_height="wrap_content"
                         android:layout_margin="0dp"
                         android:layout_weight="0"
                         android:padding="0dp"
-                        android:text="&gt;&gt;"/>
+                        android:text="&gt;&gt;"
+                        android:layout_gravity="center"
+                        android:background="@null"
+                        android:src="@drawable/next32x32"/>
                     <!--<Space
                     android:layout_width="30dp"
                     android:layout_height="wrap_content"/>
@@ -140,23 +154,29 @@
                 android:orientation="horizontal"
                 android:padding="0dp">
 
-                <Button
+                <ImageButton
                     android:id="@+id/btnShowDateEnd"
-                    android:layout_width="@dimen/button_width"
+                    android:layout_width="60dp"
                     android:layout_height="fill_parent"
                     android:layout_margin="0dp"
                     android:layout_weight="0.5"
                     android:padding="0dp"
-                    android:text="v"/>
+                    android:text="v"
+                    android:layout_gravity="center"
+                    android:background="@null"
+                    android:src="@drawable/open32x32"/>
 
-                <Button
+                <ImageButton
                     android:id="@+id/btnSearch"
-                    android:layout_width="@dimen/button_width"
+                    android:layout_width="60dp"
                     android:layout_height="fill_parent"
                     android:layout_margin="0dp"
                     android:layout_weight="0.5"
                     android:padding="0dp"
-                    android:text="S"/>
+                    android:text="S"
+                    android:layout_gravity="center"
+                    android:background="@null"
+                    android:src="@drawable/refresh32x32"/>
             </LinearLayout>
         </LinearLayout>
 
