@@ -31,4 +31,5 @@
         <item name="android:textColorSecondary">@color/dialogColorSimple</item>
         <item name="android:headerBackground">@color/dialogBackground</item>
     </style>
+
 </resources>

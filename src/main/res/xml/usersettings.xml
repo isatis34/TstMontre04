@@ -30,7 +30,7 @@
             android:key="prefWSTimeOut"
             android:summary="@string/PrefWSTimeOutSummary"
             android:title="TimeOut"
-            android:inputType="numberDecimal"
+            android:inputType="number"
             android:digits="0123456789"/>
     </PreferenceCategory>
 
@@ -58,7 +58,7 @@
             android:summary="@string/PrefNbreJoursAvantSummary"
             android:title="Nombre de jours avant d'aujourd'hui"
             android:dependency="prefUseDateStart"
-            android:inputType="numberDecimal|numberSigned"
+            android:inputType="number"
             android:digits="0123456789">
         </EditTextPreference>
         <CheckBoxPreference
@@ -72,7 +72,7 @@
             android:summary="@string/PrefNbreJoursApresSummary"
             android:title="Nombre de jours après d'aujourd'hui"
             android:dependency="prefUseDateEnd"
-            android:inputType="numberDecimal|numberSigned"
+            android:inputType="number"
             android:digits="0123456789" >
         </EditTextPreference>
     </PreferenceCategory>
