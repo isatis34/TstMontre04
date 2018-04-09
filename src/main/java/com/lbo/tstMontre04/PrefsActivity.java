@@ -23,87 +23,31 @@ public class PrefsActivity extends PreferenceActivity
 
 		final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-		@SuppressWarnings("deprecation") final EditTextPreference editTextPreferenceprefServerAddress = (EditTextPreference) findPreference("prefServerAddress");
-		String value = GetValue(sharedPreferences.getString("prefServerAddress", ""), "Adresse/nom du serveur");
-		editTextPreferenceprefServerAddress.setSummary(value);
-		editTextPreferenceprefServerAddress.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object o) {
+		final String[] arrPref = {"prefServerAddress", "prefServerPortweb", "prefServerNSP", "prefDateStart", "prefDateEnd", "prefWSTimeOut"};
+		final int[] arrPrefSummary = {R.string.PrefServerAddressSummary, R.string.PrefServerPortwebSummary, R.string.PrefNSPSummary, R.string.PrefNbreJoursAvantSummary, R.string.PrefNbreJoursApresSummary, R.string.PrefWSTimeOutSummary};
 
-				String value = GetValue(o, "Adresse/nom du serveur");
+		for (int i = 0 ; i < arrPref.length ; i++)
+		{
+			final EditTextPreference EditTextPreference = (EditTextPreference) findPreference(arrPref[i]);
+			String value = GetValue(sharedPreferences.getString(arrPref[i], ""), getResources().getString(arrPrefSummary[i]));
+			EditTextPreference.setSummary(value);
+			final int finalI = i;
+			EditTextPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+				@Override
+				public boolean onPreferenceChange(Preference preference, Object o) {
 
-				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-				sharedPreferences.edit().putString("prefServerAddress", value).apply();
-				editTextPreferenceprefServerAddress.setSummary(value);
+					String value = GetValue(o, getResources().getString(arrPrefSummary[finalI]));
 
-				return true;
-			}
-		});
+					SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+					sharedPreferences.edit().putString(arrPref[finalI], value).apply();
+					EditTextPreference.setSummary(value);
 
-		@SuppressWarnings("deprecation") final EditTextPreference editTextPreferenceprefServerPortweb = (EditTextPreference) findPreference("prefServerPortweb");
-		value = GetValue(sharedPreferences.getString("prefServerPortweb", ""), "Port Web du serveur");
-		editTextPreferenceprefServerPortweb.setSummary(value);
-		editTextPreferenceprefServerPortweb.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object o) {
-
-				String value = GetValue(o, "Port Web du serveur");
-
-				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-				sharedPreferences.edit().putString("prefServerPortweb", value).apply();
-				editTextPreferenceprefServerPortweb.setSummary(value);
-
-				return true;
-			}
-		});
-
-		@SuppressWarnings("deprecation") final EditTextPreference editTextPreferenceprefServerNSP = (EditTextPreference) findPreference("prefServerNSP");
-		value = GetValue(sharedPreferences.getString("prefServerNSP", ""), "Namespace à utiliser");
-		editTextPreferenceprefServerNSP.setSummary(value);
-		editTextPreferenceprefServerNSP.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object o) {
-
-				String value = GetValue(o, "Namespace à utiliser");
-				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-				sharedPreferences.edit().putString("prefServerNSP", value).apply();
-				editTextPreferenceprefServerNSP.setSummary(value);
-
-				return true;
-			}
-		});
-		@SuppressWarnings("deprecation") final EditTextPreference editTextprefDateStart = (EditTextPreference) findPreference("prefDateStart");
-		value = GetValue(sharedPreferences.getString("prefDateStart", ""), "Nombre de jours avant d'aujourd'hui");
-		editTextprefDateStart.setSummary(value);
-		editTextprefDateStart.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object o) {
-
-				String value = GetValue(o, "0");
-				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-				sharedPreferences.edit().putString("prefDateStart", value).apply();
-				editTextprefDateStart.setSummary(value);
-
-				return true;
-			}
-		});
-		@SuppressWarnings("deprecation") final EditTextPreference editTextprefDateEnd = (EditTextPreference) findPreference("prefDateEnd");
-		value = GetValue(sharedPreferences.getString("prefDateEnd", ""), "Nombre de jours après d'aujourd'hui");
-		editTextprefDateEnd.setSummary(value);
-		editTextprefDateEnd.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object o) {
-
-				String value = GetValue(o, "1");
-				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-				sharedPreferences.edit().putString("prefDateEnd", value).apply();
-				editTextprefDateEnd.setSummary(value);
-
-				return true;
-			}
-		});
-
+					return true;
+				}
+			});
+		}
 	}
+
 	private static String GetValue(Object Value, String Text)
 	{
 		String value = "";

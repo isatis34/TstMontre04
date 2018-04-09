@@ -1,3 +1,8 @@
+/*
+Les icones viennet de
+http://www.iconarchive.com/show/soft-scraps-icons-by-hopstarter.html
+
+ */
 package com.lbo.tstMontre04;
 
 import android.app.AlertDialog;
@@ -31,6 +36,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ExpandableListView;
 import android.app.ProgressDialog;
@@ -90,6 +96,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 	private String SnackbarText = "";
 	private ProgressDialog progressDialog;
 	private SwipeRefreshLayout gridSwipeRefresh;
+
+	public static SimpleDateFormat DateFormatDate;
+	public static SimpleDateFormat DateFormatDateTime;
 
 	private PatientAdapter PatientAdapter = null;
 	private PatientApptAdapter PatientApptAdapter = null;
@@ -169,6 +178,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 				dialog.show();
 				return;* /
 			}*/
+			DateFormatDate = new SimpleDateFormat("dd/MM/yy");
+			DateFormatDateTime = new SimpleDateFormat("dd/MM/yy HH:mm");
+
 			readPreferences(false);
 			if (UseCisco)
 			{
@@ -229,19 +241,14 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 								@Override
 								public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth)
 								{
-									SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yy");
 									cldr.set(year, monthOfYear, dayOfMonth);
-									textDateStart.setText(format1.format(cldr.getTime()));
+									textDateStart.setText(DateFormatDate.format(cldr.getTime()));
 									textDateStart.setTag(cldr.getTime());
 								}
 							}, year, month, day);
 					picker.show();
 				}
 			});
-			if (PrefUseDateStart) {
-				String Date = ComputeDate(PrefDateStart);
-				textDateStart.setText(Date);
-			}
 			// endregion
 			// region Gestion textDateEnd
 			textDateEnd = (EditText) findViewById(R.id.textDateEnd);
@@ -273,34 +280,29 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 								@Override
 								public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth)
 								{
-									SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yy");
 									cldr.set(year, monthOfYear, dayOfMonth);
-									textDateEnd.setText(format1.format(cldr.getTime()));
+									textDateEnd.setText(DateFormatDate.format(cldr.getTime()));
 									textDateEnd.setTag(cldr.getTime());
 								}
 							}, year, month, day);
 					picker.show();
 				}
 			});
-			if (PrefUseDateEnd) {
-				String Date = ComputeDate(PrefDateEnd);
-				textDateEnd.setText(Date);
-			}
 			// endregion
-			Button btnDateStartNext = (Button) findViewById(R.id.btnDateStartNext);
+			// region Gestion btnDateStartNext
+			ImageButton btnDateStartNext = (ImageButton) findViewById(R.id.btnDateStartNext);
 			btnDateStartNext.setOnClickListener(new View.OnClickListener()
 			{
 				@Override
 				public void onClick(View v)
 				{
-					SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yy");
 					String date = textDateStart.getText().toString();
 					try
 					{
 						Calendar cldr = Calendar.getInstance();
-						cldr.setTime(format1.parse(date));
+						cldr.setTime(DateFormatDate.parse(date));
 						cldr.add(Calendar.DATE, 1);
-						textDateStart.setText(format1.format(cldr.getTime()));
+						textDateStart.setText(DateFormatDate.format(cldr.getTime()));
 						textDateStart.setTag(cldr.getTime());
 					}
 					catch (ParseException e)
@@ -309,20 +311,21 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 					}
 				}
 			});
-			Button btnDateStartPrevious = (Button) findViewById(R.id.btnDateStartPrevious);
+			// endregion
+			// region Gestion btnDateStartPrevious
+			ImageButton btnDateStartPrevious = (ImageButton) findViewById(R.id.btnDateStartPrevious);
 			btnDateStartPrevious.setOnClickListener(new View.OnClickListener()
 			{
 				@Override
 				public void onClick(View v)
 				{
-					SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yy");
 					String date = textDateStart.getText().toString();
 					try
 					{
 						Calendar cldr = Calendar.getInstance();
-						cldr.setTime(format1.parse(date));
+						cldr.setTime(DateFormatDate.parse(date));
 						cldr.add(Calendar.DATE, -1);
-						textDateStart.setText(format1.format(cldr.getTime()));
+						textDateStart.setText(DateFormatDate.format(cldr.getTime()));
 						textDateStart.setTag(cldr.getTime());
 					}
 					catch (ParseException e)
@@ -331,8 +334,56 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 					}
 				}
 			});
+			// endregion
 
-			Button btnShowDateEnd = (Button) findViewById(R.id.btnShowDateEnd);
+			// region Gestion btnDateEndNext
+			ImageButton btnDateEndNext = (ImageButton) findViewById(R.id.btnDateEndNext);
+			btnDateEndNext.setOnClickListener(new View.OnClickListener()
+			{
+				@Override
+				public void onClick(View v)
+				{
+					String date = textDateEnd.getText().toString();
+					try
+					{
+						Calendar cldr = Calendar.getInstance();
+						cldr.setTime(DateFormatDate.parse(date));
+						cldr.add(Calendar.DATE, 1);
+						textDateEnd.setText(DateFormatDate.format(cldr.getTime()));
+						textDateEnd.setTag(cldr.getTime());
+					}
+					catch (ParseException e)
+					{
+						e.printStackTrace();
+					}
+				}
+			});
+			// endregion
+			// region Gestion btnDateEndPrevious
+			ImageButton btnDateEndPrevious = (ImageButton) findViewById(R.id.btnDateEndPrevious);
+			btnDateEndPrevious.setOnClickListener(new View.OnClickListener()
+			{
+				@Override
+				public void onClick(View v)
+				{
+					String date = textDateEnd.getText().toString();
+					try
+					{
+						Calendar cldr = Calendar.getInstance();
+						cldr.setTime(DateFormatDate.parse(date));
+						cldr.add(Calendar.DATE, -1);
+						textDateEnd.setText(DateFormatDate.format(cldr.getTime()));
+						textDateEnd.setTag(cldr.getTime());
+					}
+					catch (ParseException e)
+					{
+						e.printStackTrace();
+					}
+				}
+			});
+			// endregion
+
+			final ImageButton btnShowDateEnd = (ImageButton) findViewById(R.id.btnShowDateEnd);
 			btnShowDateEnd.setOnClickListener(new View.OnClickListener()
 			{
 				@Override
@@ -340,11 +391,51 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 				{
 					LinearLayout buttonsDateEnd = (LinearLayout) findViewById(R.id.buttonsDateEnd);
 					if (buttonsDateEnd.getVisibility() == View.VISIBLE)
+					{
 						buttonsDateEnd.setVisibility(View.GONE);
-					else
+						btnShowDateEnd.setImageResource(R.drawable.open32x32);
+					} else
+					{
 						buttonsDateEnd.setVisibility(View.VISIBLE);
+						btnShowDateEnd.setImageResource(R.drawable.close32x32);
+					}
 				}
 			});
+			ImageButton btnSearch = (ImageButton) findViewById(R.id.btnSearch);
+			btnSearch.setOnClickListener(new View.OnClickListener()
+			{
+				@Override
+				public void onClick(View v)
+				{
+					RefreshListPatients();
+				}
+			});
+
+			Date DateStart = null;
+			Date DateEnd = null;
+
+			if (PrefUseDateStart)
+			{
+				DateStart = ComputeDate(PrefDateStart);
+			}
+			if (PrefUseDateEnd)
+			{
+				DateEnd = ComputeDate(PrefDateEnd);
+			}
+			if ((DateStart != null) && (DateEnd != null) && (DateStart.after(DateEnd)))
+			{
+				DateEnd = DateStart;
+			}
+			if (PrefUseDateStart && (DateStart != null))
+			{
+				textDateStart.setText(DateFormatDate.format(DateStart));
+				textDateStart.setTag(DateStart);
+			}
+			if (PrefUseDateEnd && (DateEnd != null))
+			{
+				textDateEnd.setText(DateFormatDate.format(DateEnd));
+				textDateEnd.setTag(DateEnd);
+			}
 
 			LVPatients = (ExpandableListView) findViewById(R.id.listPatients);
 			registerForContextMenu(LVPatients);
@@ -373,7 +464,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 					{
 						NextAppt = LVPatients.getItemAtPosition(position + 1);
 					}
-					catch (Exception e) {}
+					catch (Exception e)
+					{
+					}
 					launchApptInfosActivity(CurrAppt, NextAppt);
 				}
 			});
@@ -393,21 +486,20 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 		}
 	}
 
-	private String ComputeDate(int nbDays)
+	private Date ComputeDate(int nbDays)
 	{
-		SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yy");
 		try
 		{
 			Calendar cldr = Calendar.getInstance();
 			cldr.setTime(cldr.getTime());
 			cldr.add(Calendar.DATE, nbDays);
-			return format1.format(cldr.getTime());
+			return cldr.getTime();
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
-		return "";
+		return null;
 	}
 
 	private boolean isNetworkAvailable()
@@ -547,7 +639,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 					{
 						NextAppt = LVPatients.getItemAtPosition((int) info.id + 1);
 					}
-					catch (Exception e) {}
+					catch (Exception e)
+					{
+					}
 					launchApptInfosActivity(CurrAppt, NextAppt);
 					return true;
 				}
@@ -793,8 +887,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 									fis.close();
 									displayPatients(ClassPatientsResult);
 
-									SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yy HH:mm");
-									showDialogAlertDefault(Bundle.getString("ERROR_TITLE"), Bundle.getString("ERROR_TEXT") + "\nAffichage des anciennes données (" + format1.format(file.lastModified()) + ")", false);
+									showDialogAlertDefault(Bundle.getString("ERROR_TITLE"), Bundle.getString("ERROR_TEXT") + "\nAffichage des anciennes données (" + DateFormatDateTime.format(file.lastModified()) + ")", false);
 									return;
 								}
 							}
@@ -960,15 +1053,17 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 		if (WSTimeout >= 30000)
 			WSTimeout = 20000;
 
-		try {
+		try
+		{
 			PrefDateStart = sharedPrefs.getInt("prefDateStart", 0);
 		}
 		catch (Exception e)
 		{
 			PrefDateStart = 0;
 		}
-		try {
-		PrefDateEnd = sharedPrefs.getInt("prefDateEnd", 1);
+		try
+		{
+			PrefDateEnd = sharedPrefs.getInt("prefDateEnd", 1);
 		}
 		catch (Exception e)
 		{

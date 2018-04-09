@@ -16,19 +16,19 @@
             android:title="Utiliser Cisco" />
         <EditTextPreference
             android:key="prefServerAddress"
-            android:summary="Adresse/nom du serveur"
+            android:summary="@string/PrefServerAddressSummary"
             android:title="Serveur" />
         <EditTextPreference
             android:key="prefServerPortweb"
-            android:summary="Port Web du serveur"
+            android:summary="@string/PrefServerPortwebSummary"
             android:title="Port Web" />
         <EditTextPreference
             android:key="prefServerNSP"
-            android:summary="Namespace à utiliser"
+            android:summary="@string/PrefNSPSummary"
             android:title="Namespace" />
         <EditTextPreference
             android:key="prefWSTimeOut"
-            android:summary="TimeOut d'appel des Web Services en secondes"
+            android:summary="@string/PrefWSTimeOutSummary"
             android:title="TimeOut"
             android:inputType="numberDecimal"
             android:digits="0123456789"/>
@@ -55,7 +55,7 @@
         <EditTextPreference
             android:defaultValue="0"
             android:key="prefDateStart"
-            android:summary="Nombre de jours avant d'aujourd'hui"
+            android:summary="@string/PrefNbreJoursAvantSummary"
             android:title="Nombre de jours avant d'aujourd'hui"
             android:dependency="prefUseDateStart"
             android:inputType="numberDecimal|numberSigned"
@@ -69,7 +69,7 @@
         <EditTextPreference
             android:defaultValue="1"
             android:key="prefDateEnd"
-            android:summary="Nombre de jours après d'aujourd'hui"
+            android:summary="@string/PrefNbreJoursApresSummary"
             android:title="Nombre de jours après d'aujourd'hui"
             android:dependency="prefUseDateEnd"
             android:inputType="numberDecimal|numberSigned"

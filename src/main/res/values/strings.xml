@@ -11,4 +11,10 @@
     <string name="dialog_title_NetworkNotConnected">Erreur</string>
     <string name="dialog_message_NetworkNotConnected">Réseau non connecté</string>
     <string name="Enregistrer">Enregistrer</string>
+    <string name="PrefNbreJoursAvantSummary">Nombre de jours avant d\'aujourd\'hui</string>
+    <string name="PrefNbreJoursApresSummary">Nombre de jours après d\'aujourd\'hui</string>
+    <string name="PrefNSPSummary">Namespace à utiliser</string>
+    <string name="PrefServerAddressSummary">Adresse/nom du serveur</string>
+    <string name="PrefServerPortwebSummary">Port Web du serveur</string>
+    <string name="PrefWSTimeOutSummary">TimeOut d\'appel des Web Services en secondes</string>
 </resources>
