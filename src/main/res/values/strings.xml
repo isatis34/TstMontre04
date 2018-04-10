@@ -17,4 +17,6 @@
     <string name="PrefServerAddressSummary">Adresse/nom du serveur</string>
     <string name="PrefServerPortwebSummary">Port Web du serveur</string>
     <string name="PrefWSTimeOutSummary">TimeOut d\'appel des Web Services en secondes</string>
+    <string name="PrefLocalisationSummary">Liste des localisations. Séparées par ,</string>
+    <string name="PrefRessourceSummary">Ressource</string>
 </resources>

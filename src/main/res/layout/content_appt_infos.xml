@@ -73,6 +73,13 @@
                 android:clickable="false"
                 android:paddingRight="5dp"
                 android:textSize="30sp"/>
+            <TextView
+                android:id="@+id/ApptCTLoc"
+                android:layout_width="wrap_content"
+                android:layout_height="43dp"
+                android:clickable="false"
+                android:paddingRight="5dp"
+                android:textSize="30sp"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -227,6 +234,13 @@
 
             <TextView
                 android:id="@+id/ApptStatusNext"
+                android:layout_width="wrap_content"
+                android:layout_height="43dp"
+                android:clickable="false"
+                android:paddingRight="5dp"
+                android:textSize="30sp"/>
+            <TextView
+                android:id="@+id/ApptCTLocsNext"
                 android:layout_width="wrap_content"
                 android:layout_height="43dp"
                 android:clickable="false"

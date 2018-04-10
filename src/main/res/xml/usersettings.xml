@@ -38,13 +38,13 @@
         <EditTextPreference
             android:defaultValue="DCD1"
             android:key="prefLocation"
-            android:summary="Localisation"
-            android:title="Localisation" >
+            android:summary="@string/PrefLocalisationSummary"
+            android:title="Localisations" >
         </EditTextPreference>
         <EditTextPreference
             android:defaultValue="Ben B. JACOBS"
             android:key="prefRessource"
-            android:summary="Ressource"
+            android:summary="@string/PrefRessourceSummary"
             android:title="Ressource" >
         </EditTextPreference>
         <CheckBoxPreference
