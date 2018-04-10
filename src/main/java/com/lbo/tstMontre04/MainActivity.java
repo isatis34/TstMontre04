@@ -1361,8 +1361,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 					request.addProperty(pi);
 
 					pi = new PropertyInfo();
-					pi.setName("strINDataType");
-					pi.setValue(this.DateType);
+					pi.setName("strINSourceDataType");
+					pi.setValue("");
 					pi.setType(String.class);
 					request.addProperty(pi);
 
@@ -1370,6 +1370,12 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 					pi.setName("INFile");
 					pi.setValue(ByteBinaryData);
 					pi.setType(ByteBinaryData.getClass());
+					request.addProperty(pi);
+
+					pi = new PropertyInfo();
+					pi.setName("strINDestDataType");
+					pi.setValue("wav");
+					pi.setType(String.class);
 					request.addProperty(pi);
 
 					/*
