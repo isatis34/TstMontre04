@@ -2,19 +2,18 @@ package Region.FRXX.ClinicomLink.cli.Pat;
 
 
 // Export de Region.FRXX.ClinicomLink.cli.Pat.ClassPatientAppt.CLS
-// DTTM: 21/02/2018 09:45:11
+// DTTM: 10/04/2018 11:37:11
 
 
 // NSP T2015-FRXX-SUP
 // Commande :
-// D ##class(MXS.ClassAutoCreate).CreateClassForKSoap2("Region.FRXX.ClinicomLink.cli.Pat.ClassPatientAppt", "Region.FRXX.ClinicomLink.cli.Pat", 0, "STD")
+// D ##class(Region.FRXX.ClinicomLink.WebServices.Wrd.ClassDocumentsServices).CreateClassForKSoap2("Region.FRXX.ClinicomLink.cli.Pat.ClassPatientAppt", "Region.FRXX.ClinicomLink.cli.Pat", 0, "KSOAP,STD")
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.Vector;
 import android.net.ParseException;
 import java.util.Hashtable;
 import java.io.Serializable;
-
 import org.ksoap2.serialization.KvmSerializable;
 import org.ksoap2.serialization.PropertyInfo;
 
@@ -24,17 +23,19 @@ import android.util.Base64;
 
 
 import android.util.Log;
-public class ClassPatientAppt implements KvmSerializable, Serializable
+public class ClassPatientAppt implements Serializable, KvmSerializable
 {
 	private static final long serialVersionUID = 71334137469L;
 	public ClassPatientAppt(){}
-	public ClassPatientAppt(String age,String apptdate,String apptid,String apptstatus,String appttime,String dateofbirth,String firstname,String ipp,String lastname,String maidenname,String patientid,String sex,String tag)
+	public ClassPatientAppt(String age,String apptdate,String apptid,String apptstatus,String appttime,String ctloccode,String ctlocdesc,String dateofbirth,String firstname,String ipp,String lastname,String maidenname,String patientid,String sex,String tag)
 	{
 		Age=age;
 		ApptDate=apptdate;
 		ApptId=apptid;
 		ApptStatus=apptstatus;
 		ApptTime=appttime;
+		CTLocCode=ctloccode;
+		CTLocDesc=ctlocdesc;
 		DateOfBirth=dateofbirth;
 		FirstName=firstname;
 		IPP=ipp;
@@ -53,6 +54,8 @@ public class ClassPatientAppt implements KvmSerializable, Serializable
 		try { this.ApptId = soapObject.getProperty("ApptId").toString(); } catch (Exception e) { }
 		try { this.ApptStatus = soapObject.getProperty("ApptStatus").toString(); } catch (Exception e) { }
 		try { this.ApptTime = soapObject.getProperty("ApptTime").toString(); } catch (Exception e) { }
+		try { this.CTLocCode = soapObject.getProperty("CTLocCode").toString(); } catch (Exception e) { }
+		try { this.CTLocDesc = soapObject.getProperty("CTLocDesc").toString(); } catch (Exception e) { }
 		try { this.DateOfBirth = soapObject.getProperty("DateOfBirth").toString(); } catch (Exception e) { }
 		try { this.FirstName = soapObject.getProperty("FirstName").toString(); } catch (Exception e) { }
 		try { this.IPP = soapObject.getProperty("IPP").toString(); } catch (Exception e) { }
@@ -65,9 +68,11 @@ public class ClassPatientAppt implements KvmSerializable, Serializable
 	}
 
 
+	@Override
 	public int getPropertyCount() {
-		return 13;
+		return 15;
 	}
+	@Override
 	public Object getProperty(int arg0) {
 		switch(arg0)
 		{
@@ -82,20 +87,24 @@ public class ClassPatientAppt implements KvmSerializable, Serializable
 			case 4:
 				return ApptTime;
 			case 5:
-				return DateOfBirth;
+				return CTLocCode;
 			case 6:
-				return FirstName;
+				return CTLocDesc;
 			case 7:
-				return IPP;
+				return DateOfBirth;
 			case 8:
-				return LastName;
+				return FirstName;
 			case 9:
-				return MaidenName;
+				return IPP;
 			case 10:
-				return PatientId;
+				return LastName;
 			case 11:
-				return Sex;
+				return MaidenName;
 			case 12:
+				return PatientId;
+			case 13:
+				return Sex;
+			case 14:
 				return Tag;
 
 			default: return null;
@@ -103,6 +112,7 @@ public class ClassPatientAppt implements KvmSerializable, Serializable
 	}
 
 
+	@Override
 	public void getPropertyInfo(int index, Hashtable arg1, PropertyInfo info) {
 		switch(index)
 		{
@@ -128,33 +138,41 @@ public class ClassPatientAppt implements KvmSerializable, Serializable
 				break;
 			case 5:
 				info.type = PropertyInfo.STRING_CLASS;
-				info.name = "DateOfBirth";
+				info.name = "CTLocCode";
 				break;
 			case 6:
 				info.type = PropertyInfo.STRING_CLASS;
-				info.name = "FirstName";
+				info.name = "CTLocDesc";
 				break;
 			case 7:
 				info.type = PropertyInfo.STRING_CLASS;
-				info.name = "IPP";
+				info.name = "DateOfBirth";
 				break;
 			case 8:
 				info.type = PropertyInfo.STRING_CLASS;
-				info.name = "LastName";
+				info.name = "FirstName";
 				break;
 			case 9:
 				info.type = PropertyInfo.STRING_CLASS;
-				info.name = "MaidenName";
+				info.name = "IPP";
 				break;
 			case 10:
 				info.type = PropertyInfo.STRING_CLASS;
-				info.name = "PatientId";
+				info.name = "LastName";
 				break;
 			case 11:
 				info.type = PropertyInfo.STRING_CLASS;
-				info.name = "Sex";
+				info.name = "MaidenName";
 				break;
 			case 12:
+				info.type = PropertyInfo.STRING_CLASS;
+				info.name = "PatientId";
+				break;
+			case 13:
+				info.type = PropertyInfo.STRING_CLASS;
+				info.name = "Sex";
+				break;
+			case 14:
 				info.type = PropertyInfo.STRING_CLASS;
 				info.name = "Tag";
 				break;
@@ -164,6 +182,7 @@ public class ClassPatientAppt implements KvmSerializable, Serializable
 	}
 
 
+	@Override
 	public void setProperty(int index, Object value) {
 		switch(index)
 		{
@@ -183,27 +202,33 @@ public class ClassPatientAppt implements KvmSerializable, Serializable
 				ApptTime = value.toString();
 				break;
 			case 5:
-				DateOfBirth = value.toString();
+				CTLocCode = value.toString();
 				break;
 			case 6:
-				FirstName = value.toString();
+				CTLocDesc = value.toString();
 				break;
 			case 7:
-				IPP = value.toString();
+				DateOfBirth = value.toString();
 				break;
 			case 8:
-				LastName = value.toString();
+				FirstName = value.toString();
 				break;
 			case 9:
-				MaidenName = value.toString();
+				IPP = value.toString();
 				break;
 			case 10:
-				PatientId = value.toString();
+				LastName = value.toString();
 				break;
 			case 11:
-				Sex = value.toString();
+				MaidenName = value.toString();
 				break;
 			case 12:
+				PatientId = value.toString();
+				break;
+			case 13:
+				Sex = value.toString();
+				break;
+			case 14:
 				Tag = value.toString();
 				break;
 
@@ -217,6 +242,8 @@ public class ClassPatientAppt implements KvmSerializable, Serializable
 	public String ApptId; // %String
 	public String ApptStatus; // %String
 	public String ApptTime; // %String
+	public String CTLocCode; // %String
+	public String CTLocDesc; // %String
 	public String DateOfBirth; // %String
 	public String FirstName; // %String
 	public String IPP; // %String

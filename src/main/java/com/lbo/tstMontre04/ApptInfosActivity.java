@@ -92,6 +92,9 @@ public class ApptInfosActivity extends AppCompatActivity
 		TextView = (TextView) findViewById(R.id.ApptStatus);
 		TextView.setText(patient.ApptStatus);
 
+		TextView = (TextView) findViewById(R.id.ApptCTLoc);
+		TextView.setText(patient.CTLocCode);
+
 		int[] checkboxes = {R.id.checkbox_Arrive, R.id.checkbox_Vu, R.id.checkbox_Parti};
 		for (int checkbox : checkboxes)
 		{
@@ -187,6 +190,9 @@ public class ApptInfosActivity extends AppCompatActivity
 
 			TextView = (TextView) findViewById(R.id.ApptStatusNext);
 			TextView.setText(patientNext.ApptStatus);
+
+			TextView = (TextView) findViewById(R.id.ApptCTLocsNext);
+			TextView.setText(patientNext.CTLocCode);
 		}
 
 		LinearLayout LLApptInfosMain = (LinearLayout) findViewById(R.id.LLApptInfosMain);
