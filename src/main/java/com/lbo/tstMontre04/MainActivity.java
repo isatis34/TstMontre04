@@ -1310,15 +1310,17 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 	{
 		volatile boolean running = false;
 		volatile String IPP;
+		volatile String Episode;
 		volatile String DateType;
 		volatile String Filename;
 		volatile Uri uri;
 		volatile byte[] ByteBinaryData;
 
-		void setRunning(boolean b, String _IPP, String dateType, byte[] byteBinaryData, Uri _uri, String filename)
+		void setRunning(boolean b, String _IPP, String episode, String dateType, byte[] byteBinaryData, Uri _uri, String filename)
 		{
 			running = b;
 			IPP = _IPP;
+			Episode = episode;
 			DateType = dateType;
 			ByteBinaryData = byteBinaryData;
 			Filename = filename;
@@ -1357,6 +1359,12 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 					pi = new PropertyInfo();
 					pi.setName("strINIPP");
 					pi.setValue(IPP);
+					pi.setType(String.class);
+					request.addProperty(pi);
+
+					pi = new PropertyInfo();
+					pi.setName("strINEpisode");
+					pi.setValue(Episode);
 					pi.setType(String.class);
 					request.addProperty(pi);
 

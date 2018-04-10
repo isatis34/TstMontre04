@@ -268,7 +268,7 @@ public class ApptInfosActivity extends AppCompatActivity
 		{
 			MainActivity.BackgroundSaveBinaryFileThread BackgroundSaveBinaryFileThread = MainActivity.Instance.new BackgroundSaveBinaryFileThread();
 			String DataType = (fileName.substring(fileName.lastIndexOf("."))).toUpperCase().replace(".", "");
-			BackgroundSaveBinaryFileThread.setRunning(true, "", DataType, byteBufferString, uri, fileName);
+			BackgroundSaveBinaryFileThread.setRunning(true, patient.IPP, patient.Episode, DataType, byteBufferString, uri, fileName);
 			BackgroundSaveBinaryFileThread.start();
 		}
 		catch (Exception e)
