@@ -144,7 +144,8 @@ public class ApptInfosActivity extends AppCompatActivity
 
 													   try
 													   {
-														   imageToStore = File.createTempFile("TrakCare_" + patient.IPP + "_", ".voice", Environment.getExternalStorageDirectory());
+														   File file = new File(MainActivity.Instance.ApplicationVoiceDirectory);
+														   imageToStore = File.createTempFile("TrakCare_" + patient.IPP + "_", ".voice", file);
 													   }
 													   catch (IOException e)
 													   {
@@ -196,25 +197,33 @@ public class ApptInfosActivity extends AppCompatActivity
 		}
 
 		LinearLayout LLApptInfosMain = (LinearLayout) findViewById(R.id.LLApptInfosMain);
-		LLApptInfosMain.setOnTouchListener(new View.OnTouchListener() {
+		LLApptInfosMain.setOnTouchListener(new View.OnTouchListener()
+		{
 			@Override
 			public boolean onTouch(View view, MotionEvent motionEvent)
 			{
-				switch(motionEvent.getAction()){
-					case MotionEvent.ACTION_DOWN:{
-						downX = motionEvent.getX();}
-					case MotionEvent.ACTION_UP:{
+				switch (motionEvent.getAction())
+				{
+					case MotionEvent.ACTION_DOWN:
+					{
+						downX = motionEvent.getX();
+					}
+					case MotionEvent.ACTION_UP:
+					{
 						upX = motionEvent.getX();
 
 						float deltaX = downX - upX;
 
-						if(Math.abs(deltaX)>0){
-							if(deltaX>=0){
+						if (Math.abs(deltaX) > 0)
+						{
+							if (deltaX >= 0)
+							{
 								//swipeToRight();
 								return true;
-							}else{
+							} else
+							{
 								//swipeToLeft();
-								return  true;
+								return true;
 							}
 						}
 					}
@@ -222,7 +231,7 @@ public class ApptInfosActivity extends AppCompatActivity
 				return false;
 			}
 
-	});
+		});
 	}
 
 	/* Called when the second activity's finished */

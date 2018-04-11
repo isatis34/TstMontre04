@@ -80,7 +80,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 {
 	public static MainActivity Instance;
 	public static boolean ModeDegrade = true;
-	public static String ApplicationDirectory = new File(Environment.getExternalStorageDirectory().toString() + "/ISC").toString();
+	public static String ApplicationDirectory = new File(Environment.getExternalStorageDirectory().toString() + "/ISC/RDV").toString();
+	public static String ApplicationVoiceDirectory = new File(ApplicationDirectory + "/Voice").toString();
 	private Boolean Debug_WS_preference = true;
 	public static String Address = "172.24.76.197";
 	public static String Port_Web = "57772";
