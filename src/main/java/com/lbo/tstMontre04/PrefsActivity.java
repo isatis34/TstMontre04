@@ -82,7 +82,7 @@ public class PrefsActivity extends PreferenceActivity
 			{
 				try
 				{
-					PrefsActivity.Instance.SavePreferencesToFile(MainActivity.Instance.ApplicationDirectory + "/Settings.xml");
+					PrefsActivity.Instance.SavePreferencesToFile(MainActivity.Instance.ApplicationDirectory + "/Settings.xml", true);
 					return true;
 				}
 
@@ -151,13 +151,15 @@ public class PrefsActivity extends PreferenceActivity
 	{
 		try
 		{
-			File outputFile = File.createTempFile("PrefsRDV", ".xml", getApplicationContext().getCacheDir());
-			if (SavePreferencesToFile(outputFile.toString()))
+			String directory = MainActivity.Instance.ApplicationDirectory;
+			String filename = "/BTSettings.xml";
+			if (SavePreferencesToFile(directory + filename, false))
 			{
+				File file = new File(directory, filename);
 				Intent intent = new Intent();
 				intent.setAction(Intent.ACTION_SEND);
 				intent.setType("*/*");
-				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(outputFile) );
+				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file) );
 				startActivityForResult(intent, ACTIVITY_SEND_FILE);
 			}
 			return true;
@@ -173,15 +175,6 @@ public class PrefsActivity extends PreferenceActivity
 		if (requestCode == ACTIVITY_SEND_FILE) {
 			// Make sure the request was successful
 			if (resultCode == RESULT_OK) {
-				Uri uri = data.getData();
-				File outputFile = new File(uri.getPath());
-				try
-				{
-					outputFile.delete();
-				}
-				catch (Exception e)
-				{
-				}
 
 			}
 		}
@@ -275,7 +268,7 @@ public class PrefsActivity extends PreferenceActivity
 		}
 	}
 
-	private Boolean SavePreferencesToFile(String filePath)
+	private Boolean SavePreferencesToFile(String filePath, boolean displayInfos)
 	{
 		XmlSerializer serializer = Xml.newSerializer();
 		StringWriter writer = new StringWriter();
@@ -312,7 +305,8 @@ public class PrefsActivity extends PreferenceActivity
 			fop.write(writer.toString().getBytes());
 			fop.flush();
 			fop.close();
-			Toast.makeText(getApplicationContext(), "Sauvegarde de \n" + filePath + " réussie.", Toast.LENGTH_LONG).show();
+			if (displayInfos)
+				Toast.makeText(getApplicationContext(), "Sauvegarde de \n" + filePath + " réussie.", Toast.LENGTH_LONG).show();
 			return true;
 		}
 		catch (Exception e)
