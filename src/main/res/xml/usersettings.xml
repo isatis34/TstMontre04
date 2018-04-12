@@ -110,6 +110,10 @@
             android:key="button_Save_Prefs"
             android:summary="Enregistrer vers un fichier de préférences"
             android:title="Enregistrer dans un fichier" />
+        <Preference
+            android:key="button_Share_Prefs_Via_Bluetooth"
+            android:summary="Envoyer mes préférences via Bluetooth"
+            android:title="Envoyer via Bluetooth" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Divers" >

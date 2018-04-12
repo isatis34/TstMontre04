@@ -1,6 +1,8 @@
 package com.lbo.tstMontre04;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
@@ -8,6 +10,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Xml;
 import android.widget.Button;
@@ -38,6 +41,7 @@ import java.text.DateFormat;
 
 public class PrefsActivity extends PreferenceActivity
 {
+	private static final int ACTIVITY_SEND_FILE = 0;
 	private EditTextPreference editTextPreferenceprefServerAddress;
 	public static PrefsActivity Instance;
 
@@ -90,6 +94,25 @@ public class PrefsActivity extends PreferenceActivity
 			}
 		});
 
+		button = (Preference) findPreference("button_Share_Prefs_Via_Bluetooth");
+		button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
+		{
+			@Override
+			public boolean onPreferenceClick(Preference arg0)
+			{
+				try
+				{
+					PrefsActivity.Instance.SendPreferencesViaBluetooth();
+					return true;
+				}
+
+				catch (final Exception e)
+				{
+					Toast.makeText(PrefsActivity.this, "Erreur OnPreferenceClickListener:\n" + e.toString(), Toast.LENGTH_LONG).show();
+				}
+				return true;
+			}
+		});
 		final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
 		final String[] arrPref = {"prefServerAddress", "prefServerPortweb", "prefServerNSP", "prefDateStart", "prefDateEnd", "prefWSTimeOut", "prefLocation", "prefRessource"};
@@ -124,6 +147,45 @@ public class PrefsActivity extends PreferenceActivity
 		}
 	}
 
+	private Boolean SendPreferencesViaBluetooth()
+	{
+		try
+		{
+			File outputFile = File.createTempFile("PrefsRDV", ".xml", getApplicationContext().getCacheDir());
+			if (SavePreferencesToFile(outputFile.toString()))
+			{
+				Intent intent = new Intent();
+				intent.setAction(Intent.ACTION_SEND);
+				intent.setType("*/*");
+				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(outputFile) );
+				startActivityForResult(intent, ACTIVITY_SEND_FILE);
+			}
+			return true;
+		}
+		catch (Exception e)
+		{
+			return false;
+		}
+	}
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// Check which request we're responding to
+		if (requestCode == ACTIVITY_SEND_FILE) {
+			// Make sure the request was successful
+			if (resultCode == RESULT_OK) {
+				Uri uri = data.getData();
+				File outputFile = new File(uri.getPath());
+				try
+				{
+					outputFile.delete();
+				}
+				catch (Exception e)
+				{
+				}
+
+			}
+		}
+	}
 	private Boolean LoadPreferencesFromFile(String filePath)
 	{
 		XmlPullParserFactory factory = null;
@@ -168,84 +230,47 @@ public class PrefsActivity extends PreferenceActivity
 						break;
 					case XmlPullParser.START_TAG:
 						name = parser.getName();
-						value = null;
-						if (name.equalsIgnoreCase("Preferences"))
-						{
-							inPrefs = true;
-						}
-						break;
-					case XmlPullParser.TEXT:
+						parser.next();
+
 						value = parser.getText();
-					case XmlPullParser.END_TAG:
-						if (name.equalsIgnoreCase("Preferences"))
+						Object myPref = PrefsActivity.this.findPreference(name);
+						if (myPref instanceof EditTextPreference)
 						{
-							inPrefs = false;
+							editor.putString(name, value);
+							EditTextPreference myPrefText = (EditTextPreference) myPref;
+							myPrefText.setText(value);
 						} else
 						{
-							if (inPrefs)
+							if (myPref instanceof CheckBoxPreference)
 							{
-								if (name.equalsIgnoreCase("server_preference_Text") || name.equalsIgnoreCase("server_AccessCode_preference")
-										|| name.equalsIgnoreCase("server_NSP_preference") || name.equalsIgnoreCase("server_Hospital_preference")
-										|| name.equalsIgnoreCase("search_preferences_doctor_code"))
-								{
-									editor.putString(name, value);
-									EditTextPreference myPrefText = (EditTextPreference) PrefsActivity.this.findPreference(name);
-									myPrefText.setText(value);
-								} else
-								{
-									if ((name.equalsIgnoreCase("test_network_at_startup_preference")) || (name.equalsIgnoreCase("debug_Clinicom_preference"))
-											|| (name.equalsIgnoreCase("debug_WS_preference")))
-									{
-										Boolean valueBool = Boolean.parseBoolean(value);
-										editor.putBoolean(name, valueBool);
-										CheckBoxPreference myPref = (CheckBoxPreference) PrefsActivity.this.findPreference(name);
-										myPref.setChecked(valueBool);
-									} else
-									{
-										if ((name.equalsIgnoreCase("server_preference")) || (name.equalsIgnoreCase("server_port_preference_web"))
-												|| (name.equalsIgnoreCase("server_port_preference")) || (name.equalsIgnoreCase("search_type_preference"))
-												|| (name.equalsIgnoreCase("search_preferences_ward_code"))
-												|| (name.equalsIgnoreCase("search_preferences_GGUrg_Service_code"))
-												|| (name.equalsIgnoreCase("search_GGUrg_Service_Presentation_preference")))
-										{
-											// Boolean valueBool =
-											// Boolean.parseBoolean(value);
-											editor.putString(name, value);
-											ListPreference myPref = (ListPreference) PrefsActivity.this.findPreference(name);
-											myPref.setValue(value);
-										}
-									}
-								}
-								/**
-								 * else { try { editor.putString(name, value);
-								 * editor.commit(); EditTextPreference myPrefText =
-								 * (EditTextPreference)
-								 * PrefsActivity.this.findPreference(name);
-								 * myPrefText.setText(value); } catch (Exception e)
-								 * { Log.e("com.lbo.clinicom", "Erreur sur " +
-								 * name); } }
-								 */
+								Boolean valueBool = Boolean.parseBoolean(value);
+								editor.putBoolean(name, valueBool);
+								CheckBoxPreference CheckBoxPreference = (CheckBoxPreference) myPref;
+								CheckBoxPreference.setChecked(valueBool);
 							}
 						}
+						break;
+
 				}
 				eventType = parser.next();
 			}
 			editor.commit();
+			Toast.makeText(getApplicationContext(), "Chargement de \n" + filePath + " réussi.", Toast.LENGTH_SHORT).show();
 			return true;
 		}
 		catch (FileNotFoundException e)
 		{
-			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
 			return false;
 		}
 		catch (IOException e)
 		{
-			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
 			return false;
 		}
 		catch (Exception e)
 		{
-			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
 			return false;
 		}
 	}
@@ -287,11 +312,12 @@ public class PrefsActivity extends PreferenceActivity
 			fop.write(writer.toString().getBytes());
 			fop.flush();
 			fop.close();
+			Toast.makeText(getApplicationContext(), "Sauvegarde de \n" + filePath + " réussie.", Toast.LENGTH_LONG).show();
 			return true;
 		}
 		catch (Exception e)
 		{
-			Toast.makeText(getApplicationContext(), "Load: " + filePath + "\n" + e.toString(), Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), "Sauvegarde: " + filePath + "\n" + e.toString(), Toast.LENGTH_LONG).show();
 			return false;
 		}
 	}
