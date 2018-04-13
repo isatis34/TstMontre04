@@ -54,6 +54,7 @@ public class PrefsActivity extends PreferenceActivity
 	private static final int ACTIVITY_SEND_FILE = 0;
 	private EditTextPreference editTextPreferenceprefServerAddress;
 	public static PrefsActivity Instance;
+	public static String MyUUID = "4e6d4789-75df-22e3-981a-080f200c8a99";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -71,10 +72,10 @@ public class PrefsActivity extends PreferenceActivity
 				@Override
 				public void onReceive(Context context, Intent intent)
 				{
-					android.util.Log.e("TrackingFlow", "WWWTTTFFF");
+					android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "WWWTTTFFF");
 					unregisterReceiver(this);
 					remoteDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-					new Thread(reader).start();
+					new Thread(readerServer).start();
 				}
 			};
 			registerReceiver(discoveryResult, new IntentFilter(BluetoothDevice.ACTION_FOUND));
@@ -227,6 +228,8 @@ public class PrefsActivity extends PreferenceActivity
 
 	private Boolean SendPreferencesViaBluetooth()
 	{
+		new Thread(readerSender).start();
+
 		/*
 		try
 		{
@@ -254,7 +257,7 @@ public class PrefsActivity extends PreferenceActivity
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			android.util.Log.e("TrackingFlow", "WWWTTTFFF");
+			android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "WWWTTTFFF");
 			unregisterReceiver(this);
 			remoteDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 			new Thread(reader).start();
@@ -426,12 +429,12 @@ public class PrefsActivity extends PreferenceActivity
 	private Runnable readerServer = new Runnable() {
 		public void run() {
 			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-			UUID uuid = UUID.fromString("4e6d48e0-75df-22e3-981f-0800200c8a66");
+			UUID uuid = UUID.fromString(MyUUID);
 			try {
 				BluetoothServerSocket serverSocket = adapter.listenUsingRfcommWithServiceRecord("BLTServer", uuid);
-				android.util.Log.e("TrackingFlow", "Listening...");
+				android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "Listening...");
 				socket = serverSocket.accept();
-				android.util.Log.e("TrackingFlow", "Socket accepted...");
+				android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "Socket accepted...");
 				is = socket.getInputStream();
 				os = new OutputStreamWriter(socket.getOutputStream());
 				new Thread(writter).start();
@@ -452,7 +455,7 @@ public class PrefsActivity extends PreferenceActivity
 						result = result + new String(buffer, 0, bytesRead - 1);
 						sb.append(result);
 					}
-					android.util.Log.e("TrackingFlow", "Read: " + sb.toString());
+					android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "Read: " + sb.toString());
 					//Show message on UIThread
 					runOnUiThread(new Runnable() {
 						@Override
@@ -482,27 +485,27 @@ public class PrefsActivity extends PreferenceActivity
 		}
 	};
 
-	private Runnable reader = new Runnable() {
+	private Runnable readerSender = new Runnable() {
 
 		@Override
 		public void run() {
 			try {
-				android.util.Log.e("TrackingFlow", "Found: " + remoteDevice.getName());
-				UUID uuid = UUID.fromString("4e5d48e0-75df-11e3-981f-0800200c9a66");
+				android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "Found: " + remoteDevice.getName());
+				UUID uuid = UUID.fromString(MyUUID);
 				socket = remoteDevice.createRfcommSocketToServiceRecord(uuid);
 				socket.connect();
-				android.util.Log.e("TrackingFlow", "Connected...");
+				android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "Connected...");
 				os = new OutputStreamWriter(socket.getOutputStream());
 				is = socket.getInputStream();
-				android.util.Log.e("TrackingFlow", "WWWTTTFFF34243");
+				android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "WWWTTTFFF34243");
 				new Thread(writter).start();
-				android.util.Log.e("TrackingFlow", "WWWTTTFFF3wwgftggggwww4243: " + CONTINUE_READ_WRITE);
+				android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "WWWTTTFFF3wwgftggggwww4243: " + CONTINUE_READ_WRITE);
 				int bufferSize = 1024;
 				int bytesRead = -1;
 				byte[] buffer = new byte[bufferSize];
 				//Keep reading the messages while connection is open...
 				while(CONTINUE_READ_WRITE){
-					android.util.Log.e("TrackingFlow", "WWWTTTFFF3wwwww4243");
+					android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "WWWTTTFFF3wwwww4243");
 					final StringBuilder sb = new StringBuilder();
 					bytesRead = is.read(buffer);
 					if (bytesRead != -1) {
@@ -515,7 +518,7 @@ public class PrefsActivity extends PreferenceActivity
 						sb.append(result);
 					}
 
-					android.util.Log.e("TrackingFlow", "Read: " + sb.toString());
+					android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "Read: " + sb.toString());
 
 					//Show message on UIThread
 					runOnUiThread(new Runnable() {
