@@ -53,176 +53,192 @@ public class ApptInfosActivity extends AppCompatActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		CheckBox CheckBox;
-		TextView TextView = null;
-		LinearLayout LinearLayout = null;
-
-		super.onCreate(savedInstanceState);
-		supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.activity_appt_infos);
-		patient = (ClassPatientAppt) getIntent().getSerializableExtra("ClassPatient");
-		patientNext = (ClassPatientAppt) getIntent().getSerializableExtra("ClassPatientNext");
-
-		LinearLayout = (LinearLayout) findViewById(R.id.LLApptInfos);
-		if (patient.Sex.equalsIgnoreCase("F"))
-			LinearLayout.setBackgroundColor(colors[1]);
-		else if (patient.Sex.equalsIgnoreCase("M"))
-			LinearLayout.setBackgroundColor(colors[0]);
-		else
-			LinearLayout.setBackgroundColor(colors[2]);
-
-		TextView = (TextView) findViewById(R.id.nom);
-		TextView.setText(patient.FirstName);
-		TextView = (TextView) findViewById(R.id.prenom);
-		TextView.setText(patient.LastName);
-		if ((patient.Sex.equalsIgnoreCase("F")) && (patient.MaidenName != null)
-				&& (!patient.MaidenName.isEmpty()))
+		try
 		{
-			TextView = (TextView) findViewById(R.id.nomJF);
-			TextView.setText("(" + patient.MaidenName + ")");
-			TextView.setVisibility(View.VISIBLE);
-		}
-		TextView = (TextView) findViewById(R.id.age);
-		TextView.setText(patient.Age);
-		TextView = (TextView) findViewById(R.id.statusEpisode);
+			CheckBox CheckBox;
+			TextView TextView = null;
+			LinearLayout LinearLayout = null;
 
-		TextView = (TextView) findViewById(R.id.ApptDTTM);
-		TextView.setText(patient.ApptDate + " " + patient.ApptTime);
+			super.onCreate(savedInstanceState);
+			supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
+			setContentView(R.layout.activity_appt_infos);
+			patient = (ClassPatientAppt) getIntent().getSerializableExtra("ClassPatient");
+			patientNext = (ClassPatientAppt) getIntent().getSerializableExtra("ClassPatientNext");
 
-		TextView = (TextView) findViewById(R.id.ApptStatus);
-		TextView.setText(patient.ApptStatus);
-
-		TextView = (TextView) findViewById(R.id.ApptCTLoc);
-		TextView.setText(patient.CTLocCode);
-
-		int[] checkboxes = {R.id.checkbox_Arrive, R.id.checkbox_Vu, R.id.checkbox_Parti};
-		for (int checkbox : checkboxes)
-		{
-			CheckBox = (CheckBox) findViewById(checkbox);
-			if (MainActivity.Instance.ModeDegrade)
-			{
-				CheckBox.setEnabled(false);
-			} else
-			{
-				CheckBox.setOnClickListener(new OnClickListener()
-				{
-					@Override
-					public void onClick(View v)
-					{
-						onCheckboxClicked(v);
-					}
-				});
-			}
-		}
-		switch (patient.ApptStatus)
-		{
-			case "A":
-				CheckBox = (CheckBox) findViewById(R.id.checkbox_Arrive);
-				CheckBox.setEnabled(false);
-				CheckBox.setChecked(true);
-				break;
-			case "V":
-				CheckBox = (CheckBox) findViewById(R.id.checkbox_Arrive);
-				CheckBox.setEnabled(false);
-				CheckBox.setChecked(true);
-				CheckBox = (CheckBox) findViewById(R.id.checkbox_Vu);
-				CheckBox.setEnabled(false);
-				CheckBox.setChecked(true);
-				break;
-		}
-		Button btn_RecordVoice = (Button) findViewById(R.id.btn_RecordVoice);
-		if (MainActivity.Instance.ModeDegrade)
-		{
-			btn_RecordVoice.setVisibility(View.GONE);
-		} else
-		{
-			btn_RecordVoice.setOnClickListener(new View.OnClickListener()
-											   {
-												   @Override
-												   public void onClick(View v)
-												   {
-
-													   try
-													   {
-														   imageToStore = File.createTempFile("TrakCare_" + patient.IPP + "_", ".voice", Environment.getExternalStorageDirectory());
-													   }
-													   catch (IOException e)
-													   {
-														   e.printStackTrace();
-													   }
-													   Log.d(MainActivity.Instance.getClass().getPackage().toString(), "imageToStore:" + imageToStore);
-													   Intent intent = new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
-													   intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageToStore));
-													   startActivityForResult(intent, ACTIVITY_RECORD_SOUND);
-												   }
-											   }
-			);
-		}
-
-
-		if (patientNext != null)
-		{
-			LinearLayout = (LinearLayout) findViewById(R.id.LLApptInfosNext);
-			if (patientNext.Sex.equalsIgnoreCase("F"))
+			LinearLayout = (LinearLayout) findViewById(R.id.LLApptInfos);
+			if (patient.Sex.equalsIgnoreCase("F"))
 				LinearLayout.setBackgroundColor(colors[1]);
-			else if (patientNext.Sex.equalsIgnoreCase("M"))
+			else if (patient.Sex.equalsIgnoreCase("M"))
 				LinearLayout.setBackgroundColor(colors[0]);
 			else
 				LinearLayout.setBackgroundColor(colors[2]);
 
-			TextView = (TextView) findViewById(R.id.nomNext);
-			TextView.setText(patientNext.FirstName);
-			TextView = (TextView) findViewById(R.id.prenomNext);
-			TextView.setText(patientNext.LastName);
-			if ((patientNext.Sex.equalsIgnoreCase("F")) && (patientNext.MaidenName != null)
-					&& (!patientNext.MaidenName.isEmpty()))
+			TextView = (TextView) findViewById(R.id.nom);
+			TextView.setText(patient.FirstName);
+			TextView = (TextView) findViewById(R.id.prenom);
+			TextView.setText(patient.LastName);
+			if ((patient.Sex.equalsIgnoreCase("F")) && (patient.MaidenName != null)
+					&& (!patient.MaidenName.isEmpty()))
 			{
-				TextView = (TextView) findViewById(R.id.nomJFNext);
-				TextView.setText("(" + patientNext.MaidenName + ")");
+				TextView = (TextView) findViewById(R.id.nomJF);
+				TextView.setText("(" + patient.MaidenName + ")");
 				TextView.setVisibility(View.VISIBLE);
 			}
-			TextView = (TextView) findViewById(R.id.ageNext);
-			TextView.setText(patientNext.Age);
-			//extView = (TextView) findViewById(R.id.statusEpisodeNext);
+			TextView = (TextView) findViewById(R.id.age);
+			TextView.setText(patient.Age);
+			TextView = (TextView) findViewById(R.id.statusEpisode);
 
-			TextView = (TextView) findViewById(R.id.ApptDTTMNext);
-			TextView.setText(patientNext.ApptDate + " " + patientNext.ApptTime);
+			TextView = (TextView) findViewById(R.id.ApptDTTM);
+			TextView.setText(patient.ApptDate + " " + patient.ApptTime);
 
-			TextView = (TextView) findViewById(R.id.ApptStatusNext);
-			TextView.setText(patientNext.ApptStatus);
+			TextView = (TextView) findViewById(R.id.ApptStatus);
+			TextView.setText(patient.ApptStatus);
 
-			TextView = (TextView) findViewById(R.id.ApptCTLocsNext);
-			TextView.setText(patientNext.CTLocCode);
-		}
+			TextView = (TextView) findViewById(R.id.ApptCTLoc);
+			TextView.setText(patient.CTLocCode);
 
-		LinearLayout LLApptInfosMain = (LinearLayout) findViewById(R.id.LLApptInfosMain);
-		LLApptInfosMain.setOnTouchListener(new View.OnTouchListener() {
-			@Override
-			public boolean onTouch(View view, MotionEvent motionEvent)
+			int[] checkboxes = {R.id.checkbox_Arrive, R.id.checkbox_Vu, R.id.checkbox_Parti};
+			for (int checkbox : checkboxes)
 			{
-				switch(motionEvent.getAction()){
-					case MotionEvent.ACTION_DOWN:{
-						downX = motionEvent.getX();}
-					case MotionEvent.ACTION_UP:{
-						upX = motionEvent.getX();
+				CheckBox = (CheckBox) findViewById(checkbox);
+				if (MainActivity.Instance.ModeDegrade)
+				{
+					CheckBox.setEnabled(false);
+				} else
+				{
+					CheckBox.setOnClickListener(new OnClickListener()
+					{
+						@Override
+						public void onClick(View v)
+						{
+							onCheckboxClicked(v);
+						}
+					});
+				}
+			}
+			switch (patient.ApptStatus)
+			{
+				case "A":
+					CheckBox = (CheckBox) findViewById(R.id.checkbox_Arrive);
+					CheckBox.setEnabled(false);
+					CheckBox.setChecked(true);
+					break;
+				case "V":
+					CheckBox = (CheckBox) findViewById(R.id.checkbox_Arrive);
+					CheckBox.setEnabled(false);
+					CheckBox.setChecked(true);
+					CheckBox = (CheckBox) findViewById(R.id.checkbox_Vu);
+					CheckBox.setEnabled(false);
+					CheckBox.setChecked(true);
+					break;
+			}
+			Button btn_RecordVoice = (Button) findViewById(R.id.btn_RecordVoice);
+			if (MainActivity.Instance.ModeDegrade)
+			{
+				btn_RecordVoice.setVisibility(View.GONE);
+			} else
+			{
+				btn_RecordVoice.setOnClickListener(new View.OnClickListener()
+												   {
+													   @Override
+													   public void onClick(View v)
+													   {
 
-						float deltaX = downX - upX;
+														   try
+														   {
+															   File file = new File(MainActivity.Instance.ApplicationVoiceDirectory);
+															   imageToStore = File.createTempFile("TrakCare_" + patient.IPP + "_", ".voice", file);
+														   }
+														   catch (IOException e)
+														   {
+															   e.printStackTrace();
+														   }
+														   Log.d(MainActivity.Instance.getClass().getPackage().toString(), "imageToStore:" + imageToStore);
+														   Intent intent = new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
+														   intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageToStore));
+														   startActivityForResult(intent, ACTIVITY_RECORD_SOUND);
+													   }
+												   }
+				);
+			}
 
-						if(Math.abs(deltaX)>0){
-							if(deltaX>=0){
-								//swipeToRight();
-								return true;
-							}else{
-								//swipeToLeft();
-								return  true;
+
+			if (patientNext != null)
+			{
+				LinearLayout = (LinearLayout) findViewById(R.id.LLApptInfosNext);
+				if (patientNext.Sex.equalsIgnoreCase("F"))
+					LinearLayout.setBackgroundColor(colors[1]);
+				else if (patientNext.Sex.equalsIgnoreCase("M"))
+					LinearLayout.setBackgroundColor(colors[0]);
+				else
+					LinearLayout.setBackgroundColor(colors[2]);
+
+				TextView = (TextView) findViewById(R.id.nomNext);
+				TextView.setText(patientNext.FirstName);
+				TextView = (TextView) findViewById(R.id.prenomNext);
+				TextView.setText(patientNext.LastName);
+				if ((patientNext.Sex.equalsIgnoreCase("F")) && (patientNext.MaidenName != null)
+						&& (!patientNext.MaidenName.isEmpty()))
+				{
+					TextView = (TextView) findViewById(R.id.nomJFNext);
+					TextView.setText("(" + patientNext.MaidenName + ")");
+					TextView.setVisibility(View.VISIBLE);
+				}
+				TextView = (TextView) findViewById(R.id.ageNext);
+				TextView.setText(patientNext.Age);
+				//extView = (TextView) findViewById(R.id.statusEpisodeNext);
+
+				TextView = (TextView) findViewById(R.id.ApptDTTMNext);
+				TextView.setText(patientNext.ApptDate + " " + patientNext.ApptTime);
+
+				TextView = (TextView) findViewById(R.id.ApptStatusNext);
+				TextView.setText(patientNext.ApptStatus);
+
+				TextView = (TextView) findViewById(R.id.ApptCTLocsNext);
+				TextView.setText(patientNext.CTLocCode);
+			}
+
+			LinearLayout LLApptInfosMain = (LinearLayout) findViewById(R.id.LLApptInfosMain);
+			LLApptInfosMain.setOnTouchListener(new View.OnTouchListener()
+			{
+				@Override
+				public boolean onTouch(View view, MotionEvent motionEvent)
+				{
+					switch (motionEvent.getAction())
+					{
+						case MotionEvent.ACTION_DOWN:
+						{
+							downX = motionEvent.getX();
+						}
+						case MotionEvent.ACTION_UP:
+						{
+							upX = motionEvent.getX();
+
+							float deltaX = downX - upX;
+
+							if (Math.abs(deltaX) > 0)
+							{
+								if (deltaX >= 0)
+								{
+									//swipeToRight();
+									return true;
+								} else
+								{
+									//swipeToLeft();
+									return true;
+								}
 							}
 						}
 					}
+					return false;
 				}
-				return false;
-			}
 
-	});
+			});
+		}
+		catch (Exception e)
+		{
+			Log.d(MainActivity.Instance.getClass().getPackage().toString(), e.toString());
+		}
 	}
 
 	/* Called when the second activity's finished */

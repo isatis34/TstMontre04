@@ -42,6 +42,7 @@ import android.widget.ExpandableListView;
 import android.app.ProgressDialog;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.net.Uri;
+import android.widget.Toast;
 
 import org.ksoap2.HeaderProperty;
 import org.ksoap2.SoapEnvelope;
@@ -80,7 +81,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 {
 	public static MainActivity Instance;
 	public static boolean ModeDegrade = true;
-	public static String ApplicationDirectory = new File(Environment.getExternalStorageDirectory().toString() + "/ISC").toString();
+	public static String ApplicationDirectory = new File(Environment.getExternalStorageDirectory().toString() + "/ISC/RDV").toString();
+	public static String ApplicationVoiceDirectory = new File(ApplicationDirectory + "/Voice").toString();
 	private Boolean Debug_WS_preference = true;
 	public static String Address = "172.24.76.197";
 	public static String Port_Web = "57772";
@@ -130,6 +132,15 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 							.setAction("Action", null).show();
 				}
 			});
+			File outputFile = new File(ApplicationDirectory + "/BTSettings.xml");
+			try
+			{
+				outputFile.delete();
+			}
+			catch (Exception e)
+			{
+			}
+
 			SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 			sharedPrefs.registerOnSharedPreferenceChangeListener(this);
 
@@ -183,35 +194,46 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 			DateFormatDate = new SimpleDateFormat("dd/MM/yy");
 			DateFormatDateTime = new SimpleDateFormat("dd/MM/yy HH:mm");
 
-			readPreferences(false);
-			if (UseCisco)
+			LVPatients = (ExpandableListView) findViewById(R.id.listPatients);
+			registerForContextMenu(LVPatients);
+			LVPatients.setClickable(true);
+			gridSwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+			gridSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
 			{
-				try
-				{
-					Intent anyConnectIntent = new Intent(
-							"com.cisco.anyconnect.vpn.android.PRIMARY_ACTIVITY_ACTION_CONNECT_INTENT");
-		/*anyConnectIntent.putExtra(
-				"com.cisco.anyconnect.vpn.android.CONNECTION_ACTIVITY_CONNECT_KEY",
-				"anyconnect://create?name=iscmtp&host=sslvpn.intersystems.com");*/
 
-		/*anyConnectIntent.putExtra(
-				"com.cisco.anyconnect.vpn.android.CONNECTION_ACTIVITY_CONNECT_KEY",
-				"anyconnect:connect?name=sslvpn.intersystems.com&prefill_username=iscinternal\\lbogni&prefill_password=Screwy!06");*/
-
-			/*anyConnectIntent.putExtra(
-					"com.cisco.anyconnect.vpn.android.CONNECTION_ACTIVITY_CONNECT_KEY",
-					"anyconnect://connect/?name=a"); //&host=sslvpn.intersystems.com&prefill_username=lbogni&prefill_password=Screwy%2106&prefill_group_list=Remote");*/
-					anyConnectIntent.putExtra(
-							"com.cisco.anyconnect.vpn.android.CONNECTION_ACTIVITY_CONNECT_KEY",
-							"anyconnect://connect/?name=a&host=sslvpn.intersystems.com&prefill_username=lbogni&prefill_password=Screwy%2106&prefill_group_list=Remote");
-					//String aa = anyConnectIntent.getStringExtra("com.cisco.anyconnect.vpn.android.CONNECTION_ACTIVITY_CONNECT_KEY");
-					startActivity(anyConnectIntent);
-				}
-				catch (Exception exc)
+				@Override
+				public void onRefresh()
 				{
-					Log.d(this.getClass().getPackage().toString(), exc.toString());
+
+					RefreshListPatients();
 				}
-			}
+			});
+			LVPatients.setOnItemClickListener(new AdapterView.OnItemClickListener()
+			{
+
+				@Override
+				public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3)
+				{
+
+					Object CurrAppt = LVPatients.getItemAtPosition(position);
+					Object NextAppt = null;
+					try
+					{
+						NextAppt = LVPatients.getItemAtPosition(position + 1);
+					}
+					catch (Exception e)
+					{
+					}
+					launchApptInfosActivity(CurrAppt, NextAppt);
+				}
+			});
+			PatientApptAdapter = new PatientApptAdapter(MainActivity.this, null);
+			PatientAdapter = new PatientAdapter(MainActivity.this, null);
+
+			//LVPatients.setAdapter(PatientAdapter);
+			//RefreshListPatients();
+
+			LVPatients.setAdapter(PatientApptAdapter);
 
 			// region Gestion textDateStart
 			textDateStart = (EditText) findViewById(R.id.textDateStart);
@@ -413,6 +435,40 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 				}
 			});
 
+			readPreferences(false);
+			if ( (Address == "") || (Port_Web == "") || (NameSpace == "") )
+			{
+				Toast.makeText(getApplicationContext(), "Paramètres insuffisant pour connecter le serveur.", Toast.LENGTH_SHORT).show();
+				return;
+			}
+			if (UseCisco)
+			{
+				try
+				{
+					Intent anyConnectIntent = new Intent(
+							"com.cisco.anyconnect.vpn.android.PRIMARY_ACTIVITY_ACTION_CONNECT_INTENT");
+		/*anyConnectIntent.putExtra(
+				"com.cisco.anyconnect.vpn.android.CONNECTION_ACTIVITY_CONNECT_KEY",
+				"anyconnect://create?name=iscmtp&host=sslvpn.intersystems.com");*/
+
+		/*anyConnectIntent.putExtra(
+				"com.cisco.anyconnect.vpn.android.CONNECTION_ACTIVITY_CONNECT_KEY",
+				"anyconnect:connect?name=sslvpn.intersystems.com&prefill_username=iscinternal\\lbogni&prefill_password=Screwy!06");*/
+
+			/*anyConnectIntent.putExtra(
+					"com.cisco.anyconnect.vpn.android.CONNECTION_ACTIVITY_CONNECT_KEY",
+					"anyconnect://connect/?name=a"); //&host=sslvpn.intersystems.com&prefill_username=lbogni&prefill_password=Screwy%2106&prefill_group_list=Remote");*/
+					anyConnectIntent.putExtra(
+							"com.cisco.anyconnect.vpn.android.CONNECTION_ACTIVITY_CONNECT_KEY",
+							"anyconnect://connect/?name=a&host=sslvpn.intersystems.com&prefill_username=lbogni&prefill_password=Screwy%2106&prefill_group_list=Remote");
+					//String aa = anyConnectIntent.getStringExtra("com.cisco.anyconnect.vpn.android.CONNECTION_ACTIVITY_CONNECT_KEY");
+					startActivity(anyConnectIntent);
+				}
+				catch (Exception exc)
+				{
+					Log.d(this.getClass().getPackage().toString(), exc.toString());
+				}
+			}
 			Date DateStart = null;
 			Date DateEnd = null;
 
@@ -439,46 +495,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 				textDateEnd.setTag(DateEnd);
 			}
 
-			LVPatients = (ExpandableListView) findViewById(R.id.listPatients);
-			registerForContextMenu(LVPatients);
-			LVPatients.setClickable(true);
-			gridSwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
-			gridSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
-			{
-
-				@Override
-				public void onRefresh()
-				{
-
-					RefreshListPatients();
-				}
-			});
-			LVPatients.setOnItemClickListener(new AdapterView.OnItemClickListener()
-			{
-
-				@Override
-				public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3)
-				{
-
-					Object CurrAppt = LVPatients.getItemAtPosition(position);
-					Object NextAppt = null;
-					try
-					{
-						NextAppt = LVPatients.getItemAtPosition(position + 1);
-					}
-					catch (Exception e)
-					{
-					}
-					launchApptInfosActivity(CurrAppt, NextAppt);
-				}
-			});
-			PatientApptAdapter = new PatientApptAdapter(MainActivity.this, null);
-			PatientAdapter = new PatientAdapter(MainActivity.this, null);
-
-			//LVPatients.setAdapter(PatientAdapter);
-			//RefreshListPatients();
-
-			LVPatients.setAdapter(PatientApptAdapter);
 			//GetAllPatientsByResource();
 			RefreshListPatients();
 		}

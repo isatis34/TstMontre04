@@ -101,6 +101,25 @@
         </CheckBoxPreference>
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="Préférences" >
+        <Preference
+            android:key="button_Load_Prefs"
+            android:summary="Charger un fichier de préférences"
+            android:title="Charger un fichier" />
+        <Preference
+            android:key="button_Save_Prefs"
+            android:summary="Enregistrer vers un fichier de préférences"
+            android:title="Enregistrer dans un fichier" />
+        <Preference
+            android:key="button_Send_Prefs_Via_Bluetooth"
+            android:summary="Envoyer mes préférences via Bluetooth"
+            android:title="Envoyer via Bluetooth" />
+        <Preference
+            android:key="button_Receive_Prefs_Via_Bluetooth"
+            android:summary="Recevoir des préférences via Bluetooth"
+            android:title="Recevoir via Bluetooth" />
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="Divers" >
         <CheckBoxPreference
             android:defaultValue="false"
