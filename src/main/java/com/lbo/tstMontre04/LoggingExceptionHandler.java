@@ -27,12 +27,12 @@ public class LoggingExceptionHandler implements Thread.UncaughtExceptionHandler
 	{
 		try
 		{
-			Log.d(TAG, "called for " + ex.getClass());
+			Log.d(MainActivity.Instance.getClass().getPackage().toString(), "called for " + ex.getClass());
 			// assume we would write each error in one file ...
 		}
 		catch (Exception e)
 		{
-			Log.e(TAG, "Exception Logger failed!", e);
+			Log.e(MainActivity.Instance.getClass().getPackage().toString(), "Exception Logger failed!", e);
 		}
 
 	}
