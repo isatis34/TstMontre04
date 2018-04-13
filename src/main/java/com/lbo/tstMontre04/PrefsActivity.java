@@ -1,6 +1,13 @@
 package com.lbo.tstMontre04;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothServerSocket;
+import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,7 +32,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.File;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -34,6 +43,7 @@ import java.util.Map;
 import org.xmlpull.v1.XmlSerializer;
 
 import java.text.DateFormat;
+import java.util.UUID;
 
 /**
  * Created by lbogni on 23/03/2018.
@@ -48,107 +58,176 @@ public class PrefsActivity extends PreferenceActivity
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
-		Instance = this;
-		super.onCreate(savedInstanceState);
-		// add the xml resource
-		addPreferencesFromResource(R.xml.usersettings);
-
-
-		Preference button;
-		button = (Preference) findPreference("button_Load_Prefs");
-		button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
+		try
 		{
-			@Override
-			public boolean onPreferenceClick(Preference arg0)
+			Instance = this;
+			super.onCreate(savedInstanceState);
+			// add the xml resource
+			addPreferencesFromResource(R.xml.usersettings);
+
+			discoveryResult = new BroadcastReceiver()
 			{
-				try
-				{
-					PrefsActivity.Instance.LoadPreferencesFromFile(MainActivity.Instance.ApplicationDirectory + "/Settings.xml");
-					return true;
-				}
 
-				catch (final Exception e)
+				@Override
+				public void onReceive(Context context, Intent intent)
 				{
-					Toast.makeText(PrefsActivity.this, "Erreur button_Load_Prefs:\n" + e.toString(), Toast.LENGTH_LONG).show();
+					android.util.Log.e("TrackingFlow", "WWWTTTFFF");
+					unregisterReceiver(this);
+					remoteDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+					new Thread(reader).start();
 				}
-				return true;
-			}
-		});
-		button = (Preference) findPreference("button_Save_Prefs");
-		button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
-		{
-			@Override
-			public boolean onPreferenceClick(Preference arg0)
+			};
+			registerReceiver(discoveryResult, new IntentFilter(BluetoothDevice.ACTION_FOUND));
+
+			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+			if (adapter != null && adapter.isDiscovering())
 			{
-				try
-				{
-					PrefsActivity.Instance.SavePreferencesToFile(MainActivity.Instance.ApplicationDirectory + "/Settings.xml", true);
-					return true;
-				}
-
-				catch (final Exception e)
-				{
-					Toast.makeText(PrefsActivity.this, "Erreur button_Save_Prefs:\n" + e.toString(), Toast.LENGTH_LONG).show();
-				}
-				return true;
+				adapter.cancelDiscovery();
 			}
-		});
+			adapter.startDiscovery();
 
-		button = (Preference) findPreference("button_Share_Prefs_Via_Bluetooth");
-		button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
-		{
-			@Override
-			public boolean onPreferenceClick(Preference arg0)
-			{
-				try
-				{
-					PrefsActivity.Instance.SendPreferencesViaBluetooth();
-					return true;
-				}
-
-				catch (final Exception e)
-				{
-					Toast.makeText(PrefsActivity.this, "Erreur OnPreferenceClickListener:\n" + e.toString(), Toast.LENGTH_LONG).show();
-				}
-				return true;
-			}
-		});
-		final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-
-		final String[] arrPref = {"prefServerAddress", "prefServerPortweb", "prefServerNSP", "prefDateStart", "prefDateEnd", "prefWSTimeOut", "prefLocation", "prefRessource"};
-		final int[] arrPrefSummary = {R.string.PrefServerAddressSummary, R.string.PrefServerPortwebSummary, R.string.PrefNSPSummary, R.string.PrefNbreJoursAvantSummary, R.string.PrefNbreJoursApresSummary, R.string.PrefWSTimeOutSummary, R.string.PrefLocalisationSummary, R.string.PrefRessourceSummary};
-
-		for (int i = 0; i < arrPref.length; i++)
-		{
-			final EditTextPreference EditTextPreference = (EditTextPreference) findPreference(arrPref[i]);
-			String value = GetValue(sharedPreferences.getString(arrPref[i], ""), getResources().getString(arrPrefSummary[i]));
-			EditTextPreference.setSummary(value);
-			final int finalI = i;
-			EditTextPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
+			Preference button;
+			button = (Preference) findPreference("button_Load_Prefs");
+			button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
 			{
 				@Override
-				public boolean onPreferenceChange(Preference preference, Object o)
+				public boolean onPreferenceClick(Preference arg0)
 				{
 					try
 					{
-						String value = GetValue(o, getResources().getString(arrPrefSummary[finalI]));
-
-						SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-						//sharedPreferences.edit().putString(arrPref[finalI], value).apply();
-						EditTextPreference.setSummary(value);
+						PrefsActivity.Instance.LoadPreferencesFromFile(MainActivity.Instance.ApplicationDirectory + "/Settings.xml");
+						return true;
 					}
-					catch (Exception e)
+
+					catch (final Exception e)
 					{
-						Log.d(MainActivity.Instance.getClass().getPackage().toString(), e.toString());
+						Toast.makeText(PrefsActivity.this, "Erreur button_Load_Prefs:\n" + e.toString(), Toast.LENGTH_LONG).show();
 					}
 					return true;
 				}
 			});
+			button = (Preference) findPreference("button_Save_Prefs");
+			button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
+			{
+				@Override
+				public boolean onPreferenceClick(Preference arg0)
+				{
+					try
+					{
+						PrefsActivity.Instance.SavePreferencesToFile(MainActivity.Instance.ApplicationDirectory + "/Settings.xml", true);
+						return true;
+					}
+
+					catch (final Exception e)
+					{
+						Toast.makeText(PrefsActivity.this, "Erreur button_Save_Prefs:\n" + e.toString(), Toast.LENGTH_LONG).show();
+					}
+					return true;
+				}
+			});
+
+			button = (Preference) findPreference("button_Receive_Prefs_Via_Bluetooth");
+			button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
+			{
+				@Override
+				public boolean onPreferenceClick(Preference arg0)
+				{
+					try
+					{
+						PrefsActivity.Instance.ReceivePreferencesViaBluetooth();
+						return true;
+					}
+
+					catch (final Exception e)
+					{
+						Toast.makeText(PrefsActivity.this, "Erreur button_Receive_Prefs_Via_Bluetooth:\n" + e.toString(), Toast.LENGTH_LONG).show();
+					}
+					return true;
+				}
+			});
+			button = (Preference) findPreference("button_Send_Prefs_Via_Bluetooth");
+			button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
+			{
+				@Override
+				public boolean onPreferenceClick(Preference arg0)
+				{
+					try
+					{
+						PrefsActivity.Instance.SendPreferencesViaBluetooth();
+						return true;
+					}
+
+					catch (final Exception e)
+					{
+						Toast.makeText(PrefsActivity.this, "Erreur button_Share_Prefs_Via_Bluetooth:\n" + e.toString(), Toast.LENGTH_LONG).show();
+					}
+					return true;
+				}
+			});
+			final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+			final String[] arrPref = {"prefServerAddress", "prefServerPortweb", "prefServerNSP", "prefDateStart", "prefDateEnd", "prefWSTimeOut", "prefLocation", "prefRessource"};
+			final int[] arrPrefSummary = {R.string.PrefServerAddressSummary, R.string.PrefServerPortwebSummary, R.string.PrefNSPSummary, R.string.PrefNbreJoursAvantSummary, R.string.PrefNbreJoursApresSummary, R.string.PrefWSTimeOutSummary, R.string.PrefLocalisationSummary, R.string.PrefRessourceSummary};
+
+			for (int i = 0; i < arrPref.length; i++)
+			{
+				final EditTextPreference EditTextPreference = (EditTextPreference) findPreference(arrPref[i]);
+				String value = GetValue(sharedPreferences.getString(arrPref[i], ""), getResources().getString(arrPrefSummary[i]));
+				EditTextPreference.setSummary(value);
+				final int finalI = i;
+				EditTextPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
+				{
+					@Override
+					public boolean onPreferenceChange(Preference preference, Object o)
+					{
+						try
+						{
+							String value = GetValue(o, getResources().getString(arrPrefSummary[finalI]));
+
+							SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+							//sharedPreferences.edit().putString(arrPref[finalI], value).apply();
+							EditTextPreference.setSummary(value);
+						}
+						catch (Exception e)
+						{
+							Log.d(MainActivity.Instance.getClass().getPackage().toString(), e.toString());
+						}
+						return true;
+					}
+				});
+			}
 		}
+		catch (Exception e)
+		{
+			Log.d(MainActivity.Instance.getClass().getPackage().toString(), e.toString());
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		try{unregisterReceiver(discoveryResult);}catch(Exception e){e.printStackTrace();}
+		if(socket != null){
+			try{
+				is.close();
+				os.close();
+				socket.close();
+			}catch(Exception e){}
+			CONTINUE_READ_WRITE = false;
+		}
+	}
+
+
+	private boolean ReceivePreferencesViaBluetooth()
+	{
+		registerReceiver(discoveryResult, new IntentFilter(BluetoothDevice.ACTION_FOUND));
+		new Thread(readerServer).start();
+		return true;
 	}
 
 	private Boolean SendPreferencesViaBluetooth()
 	{
+		/*
 		try
 		{
 			String directory = MainActivity.Instance.ApplicationDirectory;
@@ -158,7 +237,7 @@ public class PrefsActivity extends PreferenceActivity
 				File file = new File(directory, filename);
 				Intent intent = new Intent();
 				intent.setAction(Intent.ACTION_SEND);
-				intent.setType("*/*");
+				intent.setType("image/png");
 				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file) );
 				startActivityForResult(intent, ACTIVITY_SEND_FILE);
 			}
@@ -167,8 +246,20 @@ public class PrefsActivity extends PreferenceActivity
 		catch (Exception e)
 		{
 			return false;
-		}
+		}*/
+		return false;
 	}
+	private BluetoothDevice remoteDevice;
+	private BroadcastReceiver discoveryResult; /*= new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			android.util.Log.e("TrackingFlow", "WWWTTTFFF");
+			unregisterReceiver(this);
+			remoteDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+			new Thread(reader).start();
+		}
+	};*/
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		// Check which request we're responding to
@@ -326,4 +417,132 @@ public class PrefsActivity extends PreferenceActivity
 			value = Text + " (" + Value.toString() + ")";
 		return value;
 	}
+
+	private boolean CONTINUE_READ_WRITE = true;
+	private BluetoothSocket socket;
+	private InputStream is;
+	private OutputStreamWriter os;
+
+	private Runnable readerServer = new Runnable() {
+		public void run() {
+			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+			UUID uuid = UUID.fromString("4e6d48e0-75df-22e3-981f-0800200c8a66");
+			try {
+				BluetoothServerSocket serverSocket = adapter.listenUsingRfcommWithServiceRecord("BLTServer", uuid);
+				android.util.Log.e("TrackingFlow", "Listening...");
+				socket = serverSocket.accept();
+				android.util.Log.e("TrackingFlow", "Socket accepted...");
+				is = socket.getInputStream();
+				os = new OutputStreamWriter(socket.getOutputStream());
+				new Thread(writter).start();
+
+				int bufferSize = 1024;
+				int bytesRead = -1;
+				byte[] buffer = new byte[bufferSize];
+				//Keep reading the messages while connection is open...
+				while(CONTINUE_READ_WRITE){
+					final StringBuilder sb = new StringBuilder();
+					bytesRead = is.read(buffer);
+					if (bytesRead != -1) {
+						String result = "";
+						while ((bytesRead == bufferSize) && (buffer[bufferSize-1] != 0)){
+							result = result + new String(buffer, 0, bytesRead - 1);
+							bytesRead = is.read(buffer);
+						}
+						result = result + new String(buffer, 0, bytesRead - 1);
+						sb.append(result);
+					}
+					android.util.Log.e("TrackingFlow", "Read: " + sb.toString());
+					//Show message on UIThread
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							Toast.makeText(MainActivity.Instance, sb.toString(), Toast.LENGTH_LONG).show();
+						}
+					});
+				}
+			} catch (IOException e) {e.printStackTrace();}
+		}
+	};
+
+	private Runnable writter = new Runnable() {
+
+		@Override
+		public void run() {
+			int index = 0;
+			while(CONTINUE_READ_WRITE){
+				try {
+					os.write("Message From Server" + (index++) + "\n");
+					os.flush();
+					Thread.sleep(2000);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	};
+
+	private Runnable reader = new Runnable() {
+
+		@Override
+		public void run() {
+			try {
+				android.util.Log.e("TrackingFlow", "Found: " + remoteDevice.getName());
+				UUID uuid = UUID.fromString("4e5d48e0-75df-11e3-981f-0800200c9a66");
+				socket = remoteDevice.createRfcommSocketToServiceRecord(uuid);
+				socket.connect();
+				android.util.Log.e("TrackingFlow", "Connected...");
+				os = new OutputStreamWriter(socket.getOutputStream());
+				is = socket.getInputStream();
+				android.util.Log.e("TrackingFlow", "WWWTTTFFF34243");
+				new Thread(writter).start();
+				android.util.Log.e("TrackingFlow", "WWWTTTFFF3wwgftggggwww4243: " + CONTINUE_READ_WRITE);
+				int bufferSize = 1024;
+				int bytesRead = -1;
+				byte[] buffer = new byte[bufferSize];
+				//Keep reading the messages while connection is open...
+				while(CONTINUE_READ_WRITE){
+					android.util.Log.e("TrackingFlow", "WWWTTTFFF3wwwww4243");
+					final StringBuilder sb = new StringBuilder();
+					bytesRead = is.read(buffer);
+					if (bytesRead != -1) {
+						String result = "";
+						while ((bytesRead == bufferSize) && (buffer[bufferSize-1] != 0)){
+							result = result + new String(buffer, 0, bytesRead - 1);
+							bytesRead = is.read(buffer);
+						}
+						result = result + new String(buffer, 0, bytesRead - 1);
+						sb.append(result);
+					}
+
+					android.util.Log.e("TrackingFlow", "Read: " + sb.toString());
+
+					//Show message on UIThread
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							Toast.makeText(MainActivity.Instance, sb.toString(), Toast.LENGTH_LONG).show();
+						}
+					});
+				}
+			} catch (IOException e) {e.printStackTrace();}
+		}
+	};
+
+	/*private Runnable writter = new Runnable() {
+
+		@Override
+		public void run() {
+			int index = 0;
+			while (CONTINUE_READ_WRITE) {
+				try {
+					os.write("Message From Client" + (index++) + "\n");
+					os.flush();
+					Thread.sleep(2000);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	};*/
 }
