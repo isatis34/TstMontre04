@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
@@ -37,7 +38,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.xmlpull.v1.XmlSerializer;
@@ -52,9 +56,9 @@ import java.util.UUID;
 public class PrefsActivity extends PreferenceActivity
 {
 	private static final int ACTIVITY_SEND_FILE = 0;
+	private static final int ACTIVITY_CHOOSE_FILE = 1;
 	private EditTextPreference editTextPreferenceprefServerAddress;
 	public static PrefsActivity Instance;
-	public static String MyUUID = "4e6d4789-75df-22e3-981a-080f200c8a99";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -66,26 +70,6 @@ public class PrefsActivity extends PreferenceActivity
 			// add the xml resource
 			addPreferencesFromResource(R.xml.usersettings);
 
-			discoveryResult = new BroadcastReceiver()
-			{
-
-				@Override
-				public void onReceive(Context context, Intent intent)
-				{
-					android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "WWWTTTFFF");
-					unregisterReceiver(this);
-					remoteDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-					new Thread(readerServer).start();
-				}
-			};
-			registerReceiver(discoveryResult, new IntentFilter(BluetoothDevice.ACTION_FOUND));
-
-			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-			if (adapter != null && adapter.isDiscovering())
-			{
-				adapter.cancelDiscovery();
-			}
-			adapter.startDiscovery();
 
 			Preference button;
 			button = (Preference) findPreference("button_Load_Prefs");
@@ -135,7 +119,16 @@ public class PrefsActivity extends PreferenceActivity
 				{
 					try
 					{
-						PrefsActivity.Instance.ReceivePreferencesViaBluetooth();
+						String BlueToothFolder = Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_DOWNLOADS; //searchForBluetoothFolder();
+						Intent chooseFile;
+						Intent intent;
+						chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
+						Uri uri = Uri.parse(BlueToothFolder + File.separator);
+						//chooseFile.addCategory(Intent.CATEGORY_OPENABLE);
+						chooseFile.setDataAndType(uri,"*/*");
+						intent = Intent.createChooser(chooseFile, "Choose a file");
+						startActivityForResult(intent, ACTIVITY_CHOOSE_FILE);
+
 						return true;
 					}
 
@@ -204,33 +197,54 @@ public class PrefsActivity extends PreferenceActivity
 		}
 	}
 
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		try{unregisterReceiver(discoveryResult);}catch(Exception e){e.printStackTrace();}
-		if(socket != null){
-			try{
-				is.close();
-				os.close();
-				socket.close();
-			}catch(Exception e){}
-			CONTINUE_READ_WRITE = false;
+	public List<File> folderSearchBT(File src, String folder)
+			throws FileNotFoundException {
+
+		List<File> result = new ArrayList<File>();
+
+		File[] filesAndDirs = src.listFiles();
+		List<File> filesDirs = Arrays.asList(filesAndDirs);
+
+		for (File file : filesDirs) {
+			result.add(file); // always add, even if directory
+			if (!file.isFile()) {
+				List<File> deeperList = folderSearchBT(file, folder);
+				result.addAll(deeperList);
+			}
 		}
+		return result;
 	}
 
+	public String searchForBluetoothFolder() {
 
-	private boolean ReceivePreferencesViaBluetooth()
-	{
-		registerReceiver(discoveryResult, new IntentFilter(BluetoothDevice.ACTION_FOUND));
-		new Thread(readerServer).start();
-		return true;
+		String splitchar = "/";
+		File root = Environment.getExternalStorageDirectory();
+		List<File> btFolder = null;
+		String bt = "bluetooth";
+		try {
+			btFolder = folderSearchBT(root, bt);
+		} catch (FileNotFoundException e) {
+			Log.e("FILE: ", e.getMessage());
+		}
+
+		for (int i = 0; i < btFolder.size(); i++) {
+
+			String g = btFolder.get(i).toString();
+
+			String[] subf = g.split(splitchar);
+
+			String s = subf[subf.length - 1].toUpperCase();
+
+			boolean equals = s.equalsIgnoreCase(bt);
+
+			if (equals)
+				return g;
+		}
+		return null; // not found
 	}
 
 	private Boolean SendPreferencesViaBluetooth()
 	{
-		new Thread(readerSender).start();
-
-		/*
 		try
 		{
 			String directory = MainActivity.Instance.ApplicationDirectory;
@@ -249,27 +263,32 @@ public class PrefsActivity extends PreferenceActivity
 		catch (Exception e)
 		{
 			return false;
-		}*/
-		return false;
-	}
-	private BluetoothDevice remoteDevice;
-	private BroadcastReceiver discoveryResult; /*= new BroadcastReceiver() {
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "WWWTTTFFF");
-			unregisterReceiver(this);
-			remoteDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-			new Thread(reader).start();
 		}
-	};*/
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		// Check which request we're responding to
-		if (requestCode == ACTIVITY_SEND_FILE) {
-			// Make sure the request was successful
-			if (resultCode == RESULT_OK) {
+	}
 
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		switch (requestCode)
+		{
+			case ACTIVITY_SEND_FILE:
+			{
+				// Make sure the request was successful
+				if (resultCode == RESULT_OK)
+				{
+
+				}
+				break;
+			}
+			case ACTIVITY_CHOOSE_FILE:
+			{
+				if (resultCode == RESULT_OK)
+				{
+					Uri uri = data.getData();
+					String filePath = uri.getPath();
+					LoadPreferencesFromFile(filePath);
+				}
+				break;
 			}
 		}
 	}
@@ -421,131 +440,5 @@ public class PrefsActivity extends PreferenceActivity
 		return value;
 	}
 
-	private boolean CONTINUE_READ_WRITE = true;
-	private BluetoothSocket socket;
-	private InputStream is;
-	private OutputStreamWriter os;
 
-	private Runnable readerServer = new Runnable() {
-		public void run() {
-			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-			UUID uuid = UUID.fromString(MyUUID);
-			try {
-				BluetoothServerSocket serverSocket = adapter.listenUsingRfcommWithServiceRecord("BLTServer", uuid);
-				android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "Listening...");
-				socket = serverSocket.accept();
-				android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "Socket accepted...");
-				is = socket.getInputStream();
-				os = new OutputStreamWriter(socket.getOutputStream());
-				new Thread(writter).start();
-
-				int bufferSize = 1024;
-				int bytesRead = -1;
-				byte[] buffer = new byte[bufferSize];
-				//Keep reading the messages while connection is open...
-				while(CONTINUE_READ_WRITE){
-					final StringBuilder sb = new StringBuilder();
-					bytesRead = is.read(buffer);
-					if (bytesRead != -1) {
-						String result = "";
-						while ((bytesRead == bufferSize) && (buffer[bufferSize-1] != 0)){
-							result = result + new String(buffer, 0, bytesRead - 1);
-							bytesRead = is.read(buffer);
-						}
-						result = result + new String(buffer, 0, bytesRead - 1);
-						sb.append(result);
-					}
-					android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "Read: " + sb.toString());
-					//Show message on UIThread
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							Toast.makeText(MainActivity.Instance, sb.toString(), Toast.LENGTH_LONG).show();
-						}
-					});
-				}
-			} catch (IOException e) {e.printStackTrace();}
-		}
-	};
-
-	private Runnable writter = new Runnable() {
-
-		@Override
-		public void run() {
-			int index = 0;
-			while(CONTINUE_READ_WRITE){
-				try {
-					os.write("Message From Server" + (index++) + "\n");
-					os.flush();
-					Thread.sleep(2000);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	};
-
-	private Runnable readerSender = new Runnable() {
-
-		@Override
-		public void run() {
-			try {
-				android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "Found: " + remoteDevice.getName());
-				UUID uuid = UUID.fromString(MyUUID);
-				socket = remoteDevice.createRfcommSocketToServiceRecord(uuid);
-				socket.connect();
-				android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "Connected...");
-				os = new OutputStreamWriter(socket.getOutputStream());
-				is = socket.getInputStream();
-				android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "WWWTTTFFF34243");
-				new Thread(writter).start();
-				android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "WWWTTTFFF3wwgftggggwww4243: " + CONTINUE_READ_WRITE);
-				int bufferSize = 1024;
-				int bytesRead = -1;
-				byte[] buffer = new byte[bufferSize];
-				//Keep reading the messages while connection is open...
-				while(CONTINUE_READ_WRITE){
-					android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "WWWTTTFFF3wwwww4243");
-					final StringBuilder sb = new StringBuilder();
-					bytesRead = is.read(buffer);
-					if (bytesRead != -1) {
-						String result = "";
-						while ((bytesRead == bufferSize) && (buffer[bufferSize-1] != 0)){
-							result = result + new String(buffer, 0, bytesRead - 1);
-							bytesRead = is.read(buffer);
-						}
-						result = result + new String(buffer, 0, bytesRead - 1);
-						sb.append(result);
-					}
-
-					android.util.Log.e(MainActivity.Instance.getClass().getPackage().toString(), "Read: " + sb.toString());
-
-					//Show message on UIThread
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							Toast.makeText(MainActivity.Instance, sb.toString(), Toast.LENGTH_LONG).show();
-						}
-					});
-				}
-			} catch (IOException e) {e.printStackTrace();}
-		}
-	};
-
-	/*private Runnable writter = new Runnable() {
-
-		@Override
-		public void run() {
-			int index = 0;
-			while (CONTINUE_READ_WRITE) {
-				try {
-					os.write("Message From Client" + (index++) + "\n");
-					os.flush();
-					Thread.sleep(2000);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	};*/
 }
