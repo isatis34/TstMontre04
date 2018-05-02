@@ -6,18 +6,21 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.FileObserver;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Xml;
@@ -59,6 +62,7 @@ public class PrefsActivity extends PreferenceActivity
 	private static final int ACTIVITY_CHOOSE_FILE = 1;
 	private EditTextPreference editTextPreferenceprefServerAddress;
 	public static PrefsActivity Instance;
+	private FileObserver observer;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -125,7 +129,7 @@ public class PrefsActivity extends PreferenceActivity
 						chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
 						Uri uri = Uri.parse(BlueToothFolder + File.separator);
 						//chooseFile.addCategory(Intent.CATEGORY_OPENABLE);
-						chooseFile.setDataAndType(uri,"*/*");
+						chooseFile.setDataAndType(uri, "*/*");
 						intent = Intent.createChooser(chooseFile, "Choose a file");
 						startActivityForResult(intent, ACTIVITY_CHOOSE_FILE);
 
@@ -190,6 +194,56 @@ public class PrefsActivity extends PreferenceActivity
 					}
 				});
 			}
+			final String pathToWatch1 = android.os.Environment.getExternalStorageDirectory().
+					toString() + "/bluetooth";
+
+			observer = new FileObserver(pathToWatch1)
+			{
+				@Override
+				public void onEvent(int event, final String file)
+				{
+					if (event == FileObserver.CREATE && file.matches("BTSettings-[\\d]+.xml"))
+					{
+						AlertDialog.Builder builder = new AlertDialog.Builder(PrefsActivity.Instance);
+
+						builder.setTitle("Importation");
+						builder.setMessage("Importer les préférences ?");
+
+						builder.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
+
+							public void onClick(DialogInterface dialog, int which) {
+								Log.v(MainActivity.Instance.getClass().getPackage().toString(), "bluetooth [" + android.os.Environment.getExternalStorageDirectory().toString() + "/bluetooth :" + file + "]");
+								LoadPreferencesFromFile(file);
+								File fdelete = new File(file);
+								if (fdelete.exists())
+								{
+									try
+									{
+										fdelete.delete();
+									}
+									catch (Exception e)
+									{
+
+									}
+								}
+								dialog.dismiss();
+							}
+						});
+
+						builder.setNegativeButton("Non", new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+
+								dialog.dismiss();
+							}
+						});
+						AlertDialog alert = builder.create();
+						alert.show();
+					}
+				}
+			};
+			observer.startWatching();
 		}
 		catch (Exception e)
 		{
@@ -198,16 +252,19 @@ public class PrefsActivity extends PreferenceActivity
 	}
 
 	public List<File> folderSearchBT(File src, String folder)
-			throws FileNotFoundException {
+			throws FileNotFoundException
+	{
 
 		List<File> result = new ArrayList<File>();
 
 		File[] filesAndDirs = src.listFiles();
 		List<File> filesDirs = Arrays.asList(filesAndDirs);
 
-		for (File file : filesDirs) {
+		for (File file : filesDirs)
+		{
 			result.add(file); // always add, even if directory
-			if (!file.isFile()) {
+			if (!file.isFile())
+			{
 				List<File> deeperList = folderSearchBT(file, folder);
 				result.addAll(deeperList);
 			}
@@ -215,19 +272,24 @@ public class PrefsActivity extends PreferenceActivity
 		return result;
 	}
 
-	public String searchForBluetoothFolder() {
+	public String searchForBluetoothFolder()
+	{
 
 		String splitchar = "/";
 		File root = Environment.getExternalStorageDirectory();
 		List<File> btFolder = null;
 		String bt = "bluetooth";
-		try {
+		try
+		{
 			btFolder = folderSearchBT(root, bt);
-		} catch (FileNotFoundException e) {
+		}
+		catch (FileNotFoundException e)
+		{
 			Log.e("FILE: ", e.getMessage());
 		}
 
-		for (int i = 0; i < btFolder.size(); i++) {
+		for (int i = 0; i < btFolder.size(); i++)
+		{
 
 			String g = btFolder.get(i).toString();
 
@@ -255,7 +317,7 @@ public class PrefsActivity extends PreferenceActivity
 				Intent intent = new Intent();
 				intent.setAction(Intent.ACTION_SEND);
 				intent.setType("image/png");
-				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file) );
+				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
 				startActivityForResult(intent, ACTIVITY_SEND_FILE);
 			}
 			return true;
@@ -292,6 +354,7 @@ public class PrefsActivity extends PreferenceActivity
 			}
 		}
 	}
+
 	private Boolean LoadPreferencesFromFile(String filePath)
 	{
 		XmlPullParserFactory factory = null;
