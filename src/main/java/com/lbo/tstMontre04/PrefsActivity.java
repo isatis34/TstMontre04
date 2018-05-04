@@ -14,6 +14,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.FileObserver;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
@@ -115,34 +117,6 @@ public class PrefsActivity extends PreferenceActivity
 				}
 			});
 
-			button = (Preference) findPreference("button_Receive_Prefs_Via_Bluetooth");
-			button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
-			{
-				@Override
-				public boolean onPreferenceClick(Preference arg0)
-				{
-					try
-					{
-						String BlueToothFolder = Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_DOWNLOADS; //searchForBluetoothFolder();
-						Intent chooseFile;
-						Intent intent;
-						chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
-						Uri uri = Uri.parse(BlueToothFolder + File.separator);
-						//chooseFile.addCategory(Intent.CATEGORY_OPENABLE);
-						chooseFile.setDataAndType(uri, "*/*");
-						intent = Intent.createChooser(chooseFile, "Choose a file");
-						startActivityForResult(intent, ACTIVITY_CHOOSE_FILE);
-
-						return true;
-					}
-
-					catch (final Exception e)
-					{
-						Toast.makeText(PrefsActivity.this, "Erreur button_Receive_Prefs_Via_Bluetooth:\n" + e.toString(), Toast.LENGTH_LONG).show();
-					}
-					return true;
-				}
-			});
 			button = (Preference) findPreference("button_Send_Prefs_Via_Bluetooth");
 			button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
 			{
@@ -194,61 +168,65 @@ public class PrefsActivity extends PreferenceActivity
 					}
 				});
 			}
-			final String pathToWatch1 = android.os.Environment.getExternalStorageDirectory().
-					toString() + "/bluetooth";
 
-			observer = new FileObserver(pathToWatch1)
+			Bundle b = getIntent().getExtras();
+			String action = b.getString("ACTION");
+			if (action != null)
 			{
-				@Override
-				public void onEvent(int event, final String file)
+				if (action.equalsIgnoreCase("LOAD_PREF_FROM_PREF"))
 				{
-					if (event == FileObserver.CREATE && file.matches("BTSettings-[\\d]+.xml"))
-					{
-						AlertDialog.Builder builder = new AlertDialog.Builder(PrefsActivity.Instance);
-
-						builder.setTitle("Importation");
-						builder.setMessage("Importer les préférences ?");
-
-						builder.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
-
-							public void onClick(DialogInterface dialog, int which) {
-								Log.v(MainActivity.Instance.getClass().getPackage().toString(), "bluetooth [" + android.os.Environment.getExternalStorageDirectory().toString() + "/bluetooth :" + file + "]");
-								LoadPreferencesFromFile(file);
-								File fdelete = new File(file);
-								if (fdelete.exists())
-								{
-									try
-									{
-										fdelete.delete();
-									}
-									catch (Exception e)
-									{
-
-									}
-								}
-								dialog.dismiss();
-							}
-						});
-
-						builder.setNegativeButton("Non", new DialogInterface.OnClickListener() {
-
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-
-								dialog.dismiss();
-							}
-						});
-						AlertDialog alert = builder.create();
-						alert.show();
-					}
+					AskAndImportPrefFile(b.getString("FILENAME"));
 				}
-			};
-			observer.startWatching();
+			}
 		}
 		catch (Exception e)
 		{
 			Log.d(MainActivity.Instance.getClass().getPackage().toString(), e.toString());
 		}
+	}
+
+	public void AskAndImportPrefFile(final String file)
+	{
+		AlertDialog.Builder builder = new AlertDialog.Builder(PrefsActivity.Instance);
+
+		builder.setTitle("Importation");
+		builder.setMessage("Importer les préférences ?");
+
+		builder.setPositiveButton("Oui", new DialogInterface.OnClickListener()
+		{
+
+			public void onClick(DialogInterface dialog, int which)
+			{
+				Log.v(MainActivity.Instance.getClass().getPackage().toString(), "bluetooth [" + android.os.Environment.getExternalStorageDirectory().toString() + "/bluetooth :" + file + "]");
+				LoadPreferencesFromFile(file);
+				File fdelete = new File(file);
+				if (fdelete.exists())
+				{
+					try
+					{
+						fdelete.delete();
+					}
+					catch (Exception e)
+					{
+
+					}
+				}
+				dialog.dismiss();
+			}
+		});
+
+		builder.setNegativeButton("Non", new DialogInterface.OnClickListener()
+		{
+
+			@Override
+			public void onClick(DialogInterface dialog, int which)
+			{
+
+				dialog.dismiss();
+			}
+		});
+		AlertDialog alert = builder.create();
+		alert.show();
 	}
 
 	public List<File> folderSearchBT(File src, String folder)
@@ -310,7 +288,7 @@ public class PrefsActivity extends PreferenceActivity
 		try
 		{
 			String directory = MainActivity.Instance.ApplicationDirectory;
-			String filename = "/BTSettings.xml";
+			String filename = "/RDV-BTSettings.xml";
 			if (SavePreferencesToFile(directory + filename, false))
 			{
 				File file = new File(directory, filename);

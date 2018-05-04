@@ -19,4 +19,5 @@
     <string name="PrefWSTimeOutSummary">TimeOut d\'appel des Web Services en secondes</string>
     <string name="PrefLocalisationSummary">Liste des localisations. Séparées par ,</string>
     <string name="PrefRessourceSummary">Ressource</string>
+    <string name="ShareListViaBluetooth">Partager via Bluetooth</string>
 </resources>

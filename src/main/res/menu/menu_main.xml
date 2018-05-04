@@ -12,5 +12,10 @@
         android:orderInCategory="200"
         android:title="@string/Refresh"
         app:showAsAction="never"/>
+    <item
+        android:id="@+id/menu_Partager_Liste_RDV_Via_Bluetooth"
+        android:orderInCategory="200"
+        android:title="@string/ShareListViaBluetooth"
+        app:showAsAction="never"/>
 
 </menu>

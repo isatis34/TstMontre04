@@ -16,8 +16,10 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.FileObserver;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Parcelable;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.renderscript.Element;
@@ -56,9 +58,12 @@ import org.ksoap2.transport.HttpTransportSE;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -109,6 +114,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
 	private EditText textDateStart = null;
 	private EditText textDateEnd = null;
+	private FileObserver observer;
+	private static final int ACTIVITY_SEND_FILE = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -436,11 +443,51 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 			});
 
 			readPreferences(false);
-			if ( (Address == "") || (Port_Web == "") || (NameSpace == "") )
+			if ((Address == "") || (Port_Web == "") || (NameSpace == ""))
 			{
-				Toast.makeText(getApplicationContext(), "Paramètres insuffisant pour connecter le serveur.", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), "Paramètres insuffisants pour connecter le serveur.", Toast.LENGTH_SHORT).show();
 				return;
 			}
+			final String pathToWatch1 = android.os.Environment.getExternalStorageDirectory().toString() + "/bluetooth";
+
+			observer = new FileObserver(pathToWatch1)
+			{
+				@Override
+				public void onEvent(int event, final String file)
+				{
+					if (event == FileObserver.CREATE)
+					{
+						if ((file.equalsIgnoreCase("RDV-BTSettings.xml")) || (file.matches("RDV-BTSettings-[\\d]+.xml")))
+						{
+							Message Message = handler.obtainMessage();
+							Bundle Bundle = new Bundle();
+							Bundle.putString("ACTION", "LOAD_PREF_FROM_PREF");
+							Message.setData(Bundle);
+							File fileToImport = new File(pathToWatch1, file);
+							Bundle.putString("FILENAME", fileToImport.toString());
+							Message.setData(Bundle);
+							handler.sendMessage(Message);
+						}
+						if ((file.equalsIgnoreCase("RDV-ListPatByRes.xml")) || (file.matches("RDV-ListPatByRes-[\\d]+.xml")))
+						{
+							File fileOrig = new File(pathToWatch1, file);
+							File fileCopy = new File(ApplicationDirectory, "ListPatByRes.xml");
+							try
+							{
+								fileCopy.delete();
+								copy(fileOrig, fileCopy);
+								fileOrig.delete();
+							}
+							catch (Exception e)
+							{
+
+							}
+						}
+					}
+				}
+			};
+			observer.startWatching();
+
 			if (UseCisco)
 			{
 				try
@@ -950,6 +997,13 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 								showDialogAlertDefault("Erreur handleMessage", Bundle.getString("ERROR"), false);
 							}
 						}
+						if (Bundle.getString("ACTION").equalsIgnoreCase("LOAD_PREF_FROM_PREF"))
+						{
+							Intent i = new Intent(MainActivity.Instance, PrefsActivity.class);
+							i.putExtra("ACTION", "LOAD_PREF_FROM_PREF");
+							i.putExtra("FILENAME", Bundle.getString("FILENAME"));
+							startActivity(i);
+						}
 					}
 
 					showDialogAlertDefault("Erreur handleMessage", "Message inconnu: " + Bundle.getString("ACTION"), false);
@@ -1020,6 +1074,66 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 		return true;
 	}
 
+	private void SendListPatientsViaBluetooth()
+	{
+		try
+		{
+			File file = new File(ApplicationDirectory, "ListPatByRes.xml");
+			if (file.exists())
+			{
+				File fileCopy = new File(ApplicationDirectory, "RDV-ListPatByRes.xml");
+				copy(file, fileCopy);
+				Intent intent = new Intent();
+				intent.setAction(Intent.ACTION_SEND);
+				intent.setType("image/png");
+				intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(fileCopy));
+				startActivityForResult(intent, ACTIVITY_SEND_FILE);
+			}
+		}
+		catch (Exception e)
+		{
+			showDialogAlertDefault("Erreur SendListPatientsViaBluetooth", e.getMessage(), false);
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		switch (requestCode)
+		{
+			case ACTIVITY_SEND_FILE:
+			{
+				try
+				{
+					File fileCopy = new File(ApplicationDirectory, "RDV-ListPatByRes.xml");
+					fileCopy.delete();
+				}
+				catch (Exception e)
+				{
+					showDialogAlertDefault("Erreur onActivityResult", e.getMessage(), false);
+				}
+				break;
+			}
+		}
+	}
+
+	public static void copy(File src, File dst) throws IOException
+	{
+		try (InputStream in = new FileInputStream(src))
+		{
+			try (OutputStream out = new FileOutputStream(dst))
+			{
+				// Transfer bytes from in to out
+				byte[] buf = new byte[1024];
+				int len;
+				while ((len = in.read(buf)) > 0)
+				{
+					out.write(buf, 0, len);
+				}
+			}
+		}
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
@@ -1041,9 +1155,15 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 				RefreshListPatients();
 				return true;
 			}
+			case R.id.menu_Partager_Liste_RDV_Via_Bluetooth:
+			{
+				SendListPatientsViaBluetooth();
+				return true;
+			}
 		}
 		return super.onOptionsItemSelected(item);
 	}
+
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s)
