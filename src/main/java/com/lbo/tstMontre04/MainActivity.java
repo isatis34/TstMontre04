@@ -449,7 +449,16 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 				return;
 			}
 			final String pathToWatch1 = android.os.Environment.getExternalStorageDirectory().toString() + "/bluetooth";
+			/*final File folder = new File(pathToWatch1);
+			final File[] files = folder.listFiles(new PatternFilenameFilter("dailyReport_08.*\\.txt"));
 
+// loop through the files
+			for ( final File file : files ) {
+				if ( !file.delete() ) {
+					System.err.println( "Can't remove " + file.getAbsolutePath() );
+				}
+			}
+			*/
 			observer = new FileObserver(pathToWatch1)
 			{
 				@Override
