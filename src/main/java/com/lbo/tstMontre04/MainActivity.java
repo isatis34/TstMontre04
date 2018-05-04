@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 	public static boolean ModeDegrade = true;
 	public static String ApplicationDirectory = new File(Environment.getExternalStorageDirectory().toString() + "/ISC/RDV").toString();
 	public static String ApplicationVoiceDirectory = new File(ApplicationDirectory + "/Voice").toString();
+	public static String ApplicationPicturesDirectory = new File(ApplicationDirectory + "/Pictures").toString();
 	private Boolean Debug_WS_preference = true;
 	public static String Address = "172.24.76.197";
 	public static String Port_Web = "57772";
@@ -497,7 +498,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 							try
 							{
 								fileCopy.delete();
-								copy(fileOrig, fileCopy);
+								FileUtils.copyFile(fileOrig, fileCopy);
 								fileOrig.delete();
 							}
 							catch (Exception e)
@@ -1104,7 +1105,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 			if (file.exists())
 			{
 				File fileCopy = new File(ApplicationDirectory, "RDV-ListPatByRes.xml");
-				copy(file, fileCopy);
+				FileUtils.copyFile(file, fileCopy);
 				Intent intent = new Intent();
 				intent.setAction(Intent.ACTION_SEND);
 				intent.setType("image/png");
@@ -1135,23 +1136,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 					showDialogAlertDefault("Erreur onActivityResult", e.getMessage(), false);
 				}
 				break;
-			}
-		}
-	}
-
-	public static void copy(File src, File dst) throws IOException
-	{
-		try (InputStream in = new FileInputStream(src))
-		{
-			try (OutputStream out = new FileOutputStream(dst))
-			{
-				// Transfer bytes from in to out
-				byte[] buf = new byte[1024];
-				int len;
-				while ((len = in.read(buf)) > 0)
-				{
-					out.write(buf, 0, len);
-				}
 			}
 		}
 	}

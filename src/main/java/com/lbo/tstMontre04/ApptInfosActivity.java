@@ -2,8 +2,10 @@ package com.lbo.tstMontre04;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
+import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -49,6 +51,9 @@ public class ApptInfosActivity extends AppCompatActivity
 
 	float downX = -1;
 	float upX = -1;
+
+	private Camera camera;
+	private int cameraId = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -136,6 +141,9 @@ public class ApptInfosActivity extends AppCompatActivity
 			if (MainActivity.Instance.ModeDegrade)
 			{
 				btn_RecordVoice.setVisibility(View.GONE);
+			} else if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_MICROPHONE))
+			{
+				btn_RecordVoice.setVisibility(View.GONE);
 			} else
 			{
 				btn_RecordVoice.setOnClickListener(new View.OnClickListener()
@@ -162,7 +170,39 @@ public class ApptInfosActivity extends AppCompatActivity
 				);
 			}
 
-
+			Button btn_Photo = (Button) findViewById(R.id.btn_Photo);
+			if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA))
+			{
+				btn_Photo.setVisibility(View.GONE);
+			} else
+			{
+				cameraId = findFrontFacingCamera();
+				if (cameraId < 0)
+				{
+					btn_Photo.setVisibility(View.GONE);
+				} else
+				{
+					camera = Camera.open(cameraId);
+					btn_Photo.setOnClickListener(new View.OnClickListener()
+												 {
+													 @Override
+													 public void onClick(View v)
+													 {
+														 try
+														 {
+															 camera.startPreview();
+															 camera.takePicture(null, null,
+																	 new PhotoHandler(getApplicationContext()));
+														 }
+														 catch (Exception e)
+														 {
+															 e.printStackTrace();
+														 }
+													 }
+												 }
+					);
+				}
+			}
 			if (patientNext != null)
 			{
 				LinearLayout = (LinearLayout) findViewById(R.id.LLApptInfosNext);
@@ -239,6 +279,33 @@ public class ApptInfosActivity extends AppCompatActivity
 		{
 			Log.d(MainActivity.Instance.getClass().getPackage().toString(), e.toString());
 		}
+	}
+
+	@Override
+	protected void onPause() {
+		if (camera != null) {
+			camera.release();
+			camera = null;
+		}
+		super.onPause();
+	}
+	private int findFrontFacingCamera()
+	{
+		int cameraId = -1;
+		// Search for the front facing camera
+		int numberOfCameras = Camera.getNumberOfCameras();
+		for (int i = 0; i < numberOfCameras; i++)
+		{
+			Camera.CameraInfo info = new Camera.CameraInfo();
+			Camera.getCameraInfo(i, info);
+			if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT)
+			{
+				Log.d(MainActivity.Instance.getClass().getPackage().toString(), "Camera found");
+				cameraId = i;
+				break;
+			}
+		}
+		return cameraId;
 	}
 
 	/* Called when the second activity's finished */
