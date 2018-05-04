@@ -46,6 +46,9 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.net.Uri;
 import android.widget.Toast;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.*;
+
 import org.ksoap2.HeaderProperty;
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault12;
@@ -72,6 +75,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 
 import Region.FRXX.ClinicomLink.cli.Pat.ClassListofPatientsAppt;
@@ -449,16 +453,25 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 				return;
 			}
 			final String pathToWatch1 = android.os.Environment.getExternalStorageDirectory().toString() + "/bluetooth";
-			/*final File folder = new File(pathToWatch1);
-			final File[] files = folder.listFiles(new PatternFilenameFilter("dailyReport_08.*\\.txt"));
+			for (int i = 1 ; i < 10 ; i++)
+			{
+				try
+				{
+					new File(pathToWatch1 + "/RDV-ListPatByRes-" + i + " .xml").delete();
+				}
+				catch (Exception e)
+				{
 
-// loop through the files
-			for ( final File file : files ) {
-				if ( !file.delete() ) {
-					System.err.println( "Can't remove " + file.getAbsolutePath() );
 				}
 			}
-			*/
+			try
+			{
+				new File(pathToWatch1 + "/RDV-BTSettings.xml").delete();
+			}
+			catch (Exception e)
+			{
+
+			}
 			observer = new FileObserver(pathToWatch1)
 			{
 				@Override
